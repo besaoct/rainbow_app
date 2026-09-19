@@ -1,0 +1,418 @@
+{
+  "@@locale": "en",
+  "appName": "Rainbow",
+  "@appName": {
+    "description": "Application name shown in the launcher, app bar and logo lockup."
+  },
+  "appTagline": "Gate & Dispatch Operations",
+  "@appTagline": {
+    "description": "Short brand descriptor shown under the logo."
+  },
+  "appDescription": "Register vehicle gate-in, record loading against sales orders and clear vehicles for exit.",
+  "@appDescription": {
+    "description": "One paragraph description of the app, used on the about screen."
+  },
+  "actionRetry": "Retry",
+  "actionCancel": "Cancel",
+  "actionConfirm": "Confirm",
+  "actionClose": "Close",
+  "actionSubmit": "Submit",
+  "actionNext": "Next",
+  "actionBack": "Back",
+  "actionSkip": "Skip",
+  "actionDone": "Done",
+  "actionSearch": "Search",
+  "actionRefresh": "Refresh",
+  "actionClear": "Clear",
+  "actionContinue": "Continue",
+  "actionGetStarted": "Get started",
+  "actionSignIn": "Sign in",
+  "actionSignOut": "Sign out",
+  "actionViewAll": "View all",
+  "actionSelect": "Select",
+  "actionChange": "Change",
+  "labelOptional": "Optional",
+  "labelRequired": "Required",
+  "labelLoading": "Loading…",
+  "labelNotAvailable": "—",
+  "errorTitle": "Something went wrong",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorNoInternet": "No internet connection. Check your network and try again.",
+  "errorTimeout": "The server took too long to respond. Please try again.",
+  "errorServer": "The server could not complete the request. Please try again later.",
+  "errorUnauthorized": "Your session has expired. Please sign in again.",
+  "errorForbidden": "You do not have permission to perform this action.",
+  "errorNotFound": "We could not find what you were looking for.",
+  "errorRequestCancelled": "The request was cancelled.",
+  "errorBadCertificate": "The connection is not secure and was blocked.",
+  "errorStorageUnavailable": "Local storage is unavailable. Some preferences will not be saved.",
+  "errorTitleNoConnection": "You are offline",
+  "errorTitleSession": "Session expired",
+  "emptyTitle": "Nothing here yet",
+  "emptyReadyOrdersTitle": "No orders ready for dispatch",
+  "emptyReadyOrdersMessage": "Sales orders appear here once they are confirmed and have pending quantities.",
+  "emptyVehiclesTitle": "No vehicles on record",
+  "emptyVehiclesMessage": "Vehicles appear here after their gate-in is registered.",
+  "emptyVehiclesFilteredMessage": "No vehicles match the current filter.",
+  "emptyEnteredVehiclesTitle": "No vehicles waiting",
+  "emptyEnteredVehiclesMessage": "Vehicles appear here after security registers their gate-in.",
+  "emptyOrderItemsTitle": "No pending items",
+  "emptyOrderItemsMessage": "Every line on this order has already been dispatched.",
+  "emptyInspectionItemsTitle": "Nothing loaded yet",
+  "emptyInspectionItemsMessage": "The store team has not recorded any loading against this vehicle.",
+  "emptySearchTitle": "No matches",
+  "emptySearchMessage": "Try a different vehicle number, gate pass or customer name.",
+  "onboardingTitle1": "Register every vehicle at the gate",
+  "onboardingBody1": "Capture the vehicle, driver and transporter against a confirmed sales order and issue a gate pass in seconds.",
+  "onboardingTitle2": "Track loading as it happens",
+  "onboardingBody2": "The store team records loaded quantities line by line, with pending quantities and live stock always in view.",
+  "onboardingTitle3": "Clear the exit with confidence",
+  "onboardingBody3": "Verify documents and loaded items at the gate, then approve the exit or hold the vehicle with a recorded reason.",
+  "onboardingPageIndicator": "Step {current} of {total}",
+  "@onboardingPageIndicator": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "loginTitle": "Sign in",
+  "loginSubtitle": "Use your Rainbow ERP account to continue.",
+  "loginEmailLabel": "Email address",
+  "loginEmailHint": "you@company.com",
+  "loginPasswordLabel": "Password",
+  "loginPasswordHint": "Enter your password",
+  "loginShowPassword": "Show password",
+  "loginHidePassword": "Hide password",
+  "loginSubmitting": "Signing in…",
+  "loginFailedTitle": "Sign-in failed",
+  "loginNoRoleTitle": "No operations role",
+  "loginNoRoleMessage": "This account is not set up for gate or store operations. Contact your administrator.",
+  "validationRequired": "This field is required.",
+  "validationEmailRequired": "Enter your email address.",
+  "validationEmailInvalid": "Enter a valid email address.",
+  "validationPasswordRequired": "Enter your password.",
+  "validationMinLength": "Must be at least {min} characters.",
+  "@validationMinLength": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "validationMaxLength": "Must be {max} characters or fewer.",
+  "@validationMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationVehicleNumberRequired": "Enter the vehicle number.",
+  "validationVehicleNumberInvalid": "Enter a valid vehicle number, for example KA 01 ZZ 7777.",
+  "validationDriverNameRequired": "Enter the driver’s name.",
+  "validationPhoneInvalid": "Enter a valid phone number.",
+  "validationOrderRequired": "Select a sales order.",
+  "validationLocationRequired": "Select a location.",
+  "validationReasonRequired": "Enter the reason for holding this vehicle.",
+  "validationNumberInvalid": "Enter a valid number.",
+  "validationQuantityNegative": "Quantity cannot be negative.",
+  "validationQuantityExceedsPending": "Only {pending} pcs are pending on this line.",
+  "@validationQuantityExceedsPending": {
+    "placeholders": {
+      "pending": {
+        "type": "int"
+      }
+    }
+  },
+  "validationQuantityExceedsStock": "Only {stock} pcs are in stock.",
+  "@validationQuantityExceedsStock": {
+    "placeholders": {
+      "stock": {
+        "type": "int"
+      }
+    }
+  },
+  "validationSelectAtLeastOneItem": "Enter a quantity for at least one item.",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "homeTitle": "Home",
+  "homeQuickActions": "Quick actions",
+  "quickActionGateIn": "Gate-in",
+  "@quickActionGateIn": {
+    "description": "Dashboard tile label. Kept to one short line."
+  },
+  "quickActionReadyOrders": "Ready orders",
+  "@quickActionReadyOrders": {
+    "description": "Dashboard tile label. Kept to one short line."
+  },
+  "quickActionVehicles": "Vehicles",
+  "@quickActionVehicles": {
+    "description": "Dashboard tile label. Kept to one short line."
+  },
+  "quickActionInsideGate": "Inside gate",
+  "@quickActionInsideGate": {
+    "description": "Dashboard tile label. Kept to one short line."
+  },
+  "homeTodayAtAGlance": "Today at a glance",
+  "homeAssignedLocations": "Assigned locations",
+  "homeNoAssignedLocations": "No locations assigned to your account.",
+  "homeRecentVehicles": "Recent vehicles",
+  "homeSignOutTitle": "Sign out?",
+  "homeSignOutMessage": "You will need to sign in again to continue gate operations.",
+  "roleGuard": "Security guard",
+  "roleStoreManager": "Store manager",
+  "roleAdmin": "Administrator",
+  "roleSales": "Sales",
+  "roleMember": "Team member",
+  "navHome": "Home",
+  "navVehicles": "Vehicles",
+  "navLoading": "Loading",
+  "navSettings": "Settings",
+  "guardSectionTitle": "Gate operations",
+  "guardReadyOrdersTitle": "Orders ready for dispatch",
+  "guardReadyOrdersSubtitle": "Confirmed sales orders with pending quantities.",
+  "guardGateInTitle": "Register gate-in",
+  "guardGateInSubtitle": "Record the vehicle arriving against a sales order.",
+  "guardVehiclesTitle": "Vehicles",
+  "guardVehiclesSubtitle": "Every vehicle registered at this gate.",
+  "guardInspectionTitle": "Exit clearance",
+  "guardInspectionSubtitle": "Verify the load and documents before the vehicle leaves.",
+  "orderNumberLabel": "Order no.",
+  "orderDateLabel": "Order date",
+  "orderExpectedDateLabel": "Expected",
+  "orderCustomerLabel": "Customer",
+  "orderCustomerCodeLabel": "Customer code",
+  "orderLocationLabel": "Location",
+  "orderStatusLabel": "Status",
+  "orderLinesLabel": "Lines",
+  "orderPendingLabel": "Pending",
+  "vehicleNumberLabel": "Vehicle number",
+  "vehicleNumberHint": "KA 01 ZZ 7777",
+  "gatePassLabel": "Gate pass",
+  "driverNameLabel": "Driver name",
+  "driverNameHint": "Full name as on the licence",
+  "driverPhoneLabel": "Driver phone",
+  "driverPhoneHint": "+91 91234 56789",
+  "contactPhoneLabel": "Phone",
+  "@contactPhoneLabel": {
+    "description": "The signed-in account’s own phone number, on the settings screen."
+  },
+  "transporterLabel": "Transporter",
+  "transporterHint": "Transport company name",
+  "remarksLabel": "Remarks",
+  "remarksHint": "Anything the next person should know",
+  "locationLabel": "Location",
+  "locationHint": "Select a location",
+  "salesOrderLabel": "Sales order",
+  "salesOrderHint": "Select a sales order",
+  "enteredAtLabel": "Gate-in",
+  "loadedAtLabel": "Loaded",
+  "clearedAtLabel": "Cleared",
+  "enteredByLabel": "Registered by",
+  "loadedByLabel": "Loaded by",
+  "rejectionReasonLabel": "Hold reason",
+  "guardGateInSubmit": "Register gate-in",
+  "guardGateInSuccessTitle": "Gate pass issued",
+  "guardGateInSuccessMessage": "{gatePassNo} issued for {vehicleNo}.",
+  "@guardGateInSuccessMessage": {
+    "placeholders": {
+      "gatePassNo": {
+        "type": "String"
+      },
+      "vehicleNo": {
+        "type": "String"
+      }
+    }
+  },
+  "guardSelectOrderTitle": "Select a sales order",
+  "guardSelectLocationTitle": "Select a location",
+  "statusEntered": "Entered",
+  "statusLoaded": "Loaded",
+  "statusCleared": "Cleared",
+  "statusRejected": "Held",
+  "statusOpen": "Open",
+  "statusPending": "Pending",
+  "statusUnknown": "Unknown",
+  "markEnteredLabel": "Orange mark · gate-in",
+  "markLoadedLabel": "Red mark · awaiting clearance",
+  "markClearedLabel": "Green mark · cleared for exit",
+  "markRejectedLabel": "Held · issue recorded",
+  "filterAll": "All",
+  "filterLabel": "Filter",
+  "searchVehiclesHint": "Vehicle, gate pass or customer",
+  "searchOrdersHint": "Order number or customer",
+  "@searchOrdersHint": {
+    "description": "Placeholder in the sales-order picker search field."
+  },
+  "inspectionDocumentsTitle": "Documents",
+  "inspectionItemsTitle": "Items to verify",
+  "inspectionNotLoadedTitle": "Not loaded yet",
+  "inspectionNotLoadedMessage": "This vehicle can only be cleared after the store team records the loading.",
+  "challanNumberLabel": "Challan no.",
+  "challanNumberHint": "CH-2026-901",
+  "ewayBillNumberLabel": "E-way bill no.",
+  "ewayBillNumberHint": "EWB-8877665544",
+  "invoiceNumberLabel": "Invoice no.",
+  "invoiceNumberHint": "INV-2026-102",
+  "loadingRemarksLabel": "Loading remarks",
+  "productLabel": "Product",
+  "skuLabel": "SKU",
+  "rateLabel": "Rate",
+  "lineTotalLabel": "Line total",
+  "quantityPiecesLabel": "Pieces",
+  "quantityBoxesLabel": "Boxes",
+  "quantityOrderedLabel": "Ordered",
+  "quantityDispatchedLabel": "Dispatched",
+  "quantityPendingLabel": "Pending",
+  "quantityToLoadLabel": "To load",
+  "currentStockLabel": "In stock",
+  "piecesPerBoxLabel": "Pcs / box",
+  "totalPiecesLabel": "Total pieces",
+  "totalBoxesLabel": "Total boxes",
+  "totalValueLabel": "Total value",
+  "piecesShort": "{count} pcs",
+  "@piecesShort": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "boxesShort": "{count} box",
+  "@boxesShort": {
+    "placeholders": {
+      "count": {
+        "type": "num",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "itemCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lineCount": "{count, plural, =0{No lines} =1{1 line} other{{count} lines}}",
+  "@lineCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "vehicleCount": "{count, plural, =0{No vehicles} =1{1 vehicle} other{{count} vehicles}}",
+  "@vehicleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "guardApproveExit": "Approve exit",
+  "guardRejectExit": "Hold vehicle",
+  "guardApproveTitle": "Approve exit?",
+  "guardApproveMessage": "{vehicleNo} will be cleared to leave and marked green.",
+  "@guardApproveMessage": {
+    "placeholders": {
+      "vehicleNo": {
+        "type": "String"
+      }
+    }
+  },
+  "guardRejectTitle": "Hold this vehicle?",
+  "guardRejectMessage": "The vehicle will be held at the gate and the reason recorded.",
+  "guardApproveSuccess": "{vehicleNo} cleared for exit.",
+  "@guardApproveSuccess": {
+    "placeholders": {
+      "vehicleNo": {
+        "type": "String"
+      }
+    }
+  },
+  "guardRejectSuccess": "{vehicleNo} held at the gate.",
+  "@guardRejectSuccess": {
+    "placeholders": {
+      "vehicleNo": {
+        "type": "String"
+      }
+    }
+  },
+  "guardHoldReasonLabel": "Reason",
+  "guardHoldReasonHint": "Why is the vehicle being held?",
+  "storeSectionTitle": "Store operations",
+  "storeEnteredVehiclesTitle": "Vehicles inside the gate",
+  "storeEnteredVehiclesSubtitle": "Vehicles waiting to be loaded.",
+  "storeLoadingTitle": "Record loading",
+  "storeLoadingSubtitle": "Enter the quantities actually loaded onto the vehicle.",
+  "storeStartLoading": "Start loading",
+  "storeSubmitLoading": "Submit loading",
+  "storeLoadingSuccessTitle": "Loading recorded",
+  "storeLoadingSuccessMessage": "{vehicleNo} is now awaiting security clearance.",
+  "@storeLoadingSuccessMessage": {
+    "placeholders": {
+      "vehicleNo": {
+        "type": "String"
+      }
+    }
+  },
+  "storePendingLinesLabel": "Pending lines",
+  "storeLoadFullPending": "Load all pending",
+  "storeItemsSummary": "{loaded} of {total} lines have a quantity",
+  "@storeItemsSummary": {
+    "placeholders": {
+      "loaded": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "settingsAppearance": "Appearance",
+  "settingsTheme": "Theme",
+  "settingsThemeSystem": "Match system",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsLanguage": "Language",
+  "settingsAccount": "Account",
+  "settingsAbout": "About",
+  "settingsVersion": "Version",
+  "settingsVersionValue": "{version} ({build})",
+  "@settingsVersionValue": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsServer": "Server",
+  "settingsReplayOnboarding": "Show the introduction again",
+  "languageEnglish": "English",
+  "languageHindi": "हिन्दी",
+  "languageBengali": "বাংলা",
+  "languageAssamese": "অসমীয়া",
+  "a11yBack": "Back",
+  "a11yAppLogo": "Rainbow logo",
+  "a11yLoading": "Loading",
+  "a11yStatusMark": "Status: {status}",
+  "@a11yStatusMark": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -1,0 +1,1917 @@
+openapi: 3.0.3
+info:
+  title: Rainbow ERP REST API Documentation
+  version: 1.0.0
+  description: |
+    # Rainbow ERP - Complete REST API Specification
+    
+    This OpenAPI document defines the comprehensive suite of REST APIs for **Rainbow ERP**, including:
+    - **Authentication & User Management** (Sanctum Tokens, Role Management, Location Assignments)
+    - **Locations & Master Data** (Sites, Godowns, and Transporters)
+    - **Sales Orders** (Listing, Detailed Items, and Metrics)
+    - **Real-Time Operational Dashboard** (Counts and Summary Statuses)
+    - **Security Guard Mobile/Tablet App** (Gate Pass Registration, Vehicle Lookup, Gate-In, Physical Inspection, Gate-Out, and Hold Reasons)
+    - **Store Manager Mobile/Tablet App** (Entered Vehicles, Order Item Loading, and Dispatch Documentation)
+    
+    ### Authentication
+    Most endpoints require authentication via **Bearer Token** (`Authorization: Bearer <token>`) issued by the `/auth/login` endpoint using Laravel Sanctum.
+servers:
+  - url: https://indigo-parrot-908857.hostingersite.com/api/v1
+    description: Staging Server
+  - url: http://127.0.0.1:8000/api/v1
+    description: Local Development Server
+
+tags:
+  - name: Authentication
+    description: User login, profile inspection, and session revocation
+  - name: Locations
+    description: Site (Factory) and Godown (Warehouse) locations
+  - name: Users & Roles
+    description: User provisioning, Spatie roles, and permission catalogs
+  - name: Sales Orders
+    description: Customer sales orders, line items, and fulfillment tracking
+  - name: Transporters
+    description: Registered transport, logistics, and freight carriers
+  - name: Dashboard
+    description: Real-time KPIs and operational counts
+  - name: Security Guard App
+    description: Gate security operations (Red, Orange, Green mark workflow)
+  - name: Store Manager App
+    description: Store & warehouse loading and dispatch execution
+
+paths:
+  # =========================================================================
+  # 1. AUTHENTICATION
+  # =========================================================================
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user & generate Sanctum Bearer token
+      description: Authenticate using email or phone with password. Returns a Sanctum plainTextToken with user roles and assigned site/godown locations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login
+                - password
+              properties:
+                login:
+                  type: string
+                  example: admin@rainbowerp.com
+                  description: Email address or registered phone number
+                password:
+                  type: string
+                  format: password
+                  example: Secret123!
+                  description: User password
+                device_name:
+                  type: string
+                  example: Android Guard Tablet
+                  description: Client device label
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Login successful
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: 1|qwertyuiop1234567890
+                      token_type:
+                        type: string
+                        example: Bearer
+                      user:
+                        $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Account deactivated
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current authenticated user profile
+      description: Returns user profile details, roles, permissions, and assigned locations.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Authenticated user details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout & revoke current access token
+      description: Deletes the current Sanctum access token.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Logged out successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # =========================================================================
+  # 2. LOCATIONS
+  # =========================================================================
+  /locations:
+    get:
+      tags:
+        - Locations
+      summary: List all active site and godown locations
+      description: Returns all active factories (sites) and warehouses (godowns). Excludes internal transit locations.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search code, name, GSTIN, phone, or address
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Filter by location type
+          schema:
+            type: string
+            enum: [factory, warehouse]
+        - name: include_inactive
+          in: query
+          description: Set to 1 to include inactive locations
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        '200':
+          description: Locations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 5
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+
+  /locations/assigned:
+    get:
+      tags:
+        - Locations
+      summary: List all sites & godowns with user assignment status
+      description: Returns all sites and godowns with an `is_assigned` boolean indicator showing whether the current user is assigned to each location.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: assigned_only
+          in: query
+          description: Set to 1 to filter and return only locations assigned to the user
+          schema:
+            type: integer
+            enum: [0, 1]
+        - name: type
+          in: query
+          description: Filter by factory (Site) or warehouse (Godown)
+          schema:
+            type: string
+            enum: [factory, warehouse]
+        - name: search
+          in: query
+          description: Search by name, code, GSTIN, or address
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          description: Check assigned locations for a specific user ID (Admin only)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Assigned locations retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Site and godown locations retrieved successfully.
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Main Gate Guard
+                      email:
+                        type: string
+                        example: guard@rainbowerp.com
+                  total_count:
+                    type: integer
+                    example: 5
+                  assigned_count:
+                    type: integer
+                    example: 2
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AssignedLocation'
+
+  # =========================================================================
+  # 3. USERS & ROLES
+  # =========================================================================
+  /roles:
+    get:
+      tags:
+        - Users & Roles
+      summary: List all user roles
+      description: Returns all Spatie roles configured in the system. Essential for populating role dropdowns when creating users.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: include_permissions
+          in: query
+          description: Set to 1 to include permission names list
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 16
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+
+  /users/roles:
+    get:
+      tags:
+        - Users & Roles
+      summary: List all user roles (alias)
+      description: Alias endpoint for `/roles`.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Roles list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+
+  /users:
+    post:
+      tags:
+        - Users & Roles
+      summary: Create a new user account
+      description: Creates a user, hashes the password, assigns a Spatie role, syncs site/godown location assignments, and links employee profile for ESS/HRMS.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - role
+              properties:
+                name:
+                  type: string
+                  example: Rohit Das
+                email:
+                  type: string
+                  format: email
+                  example: rohit@rainbowerp.com
+                phone:
+                  type: string
+                  example: "9876543210"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePass123!
+                role:
+                  type: string
+                  example: stores
+                  description: Role name (must exist in roles table)
+                locations:
+                  type: array
+                  items:
+                    type: integer
+                  example: [1, 2]
+                  description: Array of assigned Location IDs
+                is_active:
+                  type: boolean
+                  default: true
+                must_change_password:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: User account created successfully for Rohit Das.
+                  data:
+                    $ref: '#/components/schemas/UserDetail'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # =========================================================================
+  # 4. SALES ORDERS
+  # =========================================================================
+  /sales-orders:
+    get:
+      tags:
+        - Sales Orders
+      summary: List sales orders (paginated)
+      description: Lists sales orders with filters for status, customer, location, date range, search, and sorting. Automatically scopes non-admin users to their assigned locations.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [open, partial, closed, cancelled]
+        - name: location_id
+          in: query
+          description: Filter by site/godown location ID
+          schema:
+            type: integer
+        - name: partner_id
+          in: query
+          description: Filter by customer/partner ID
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Search order number, customer name/code, product SKU/name, or remarks
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: Filter start date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          description: Filter end date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: credit_status
+          in: query
+          description: Filter credit override status
+          schema:
+            type: string
+            enum: [overridden, normal]
+        - name: sort
+          in: query
+          description: Sort ordering
+          schema:
+            type: string
+            enum: [latest, oldest, value_desc, value_asc]
+            default: latest
+        - name: per_page
+          in: query
+          description: Items per page (default 15, max 100)
+          schema:
+            type: integer
+            default: 15
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            default: 1
+        - name: include_lines
+          in: query
+          description: Set to 1 to include full product line items
+          schema:
+            type: integer
+            enum: [0, 1]
+      responses:
+        '200':
+          description: Sales orders list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SalesOrderSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /sales-orders/{id}:
+    get:
+      tags:
+        - Sales Orders
+      summary: Get sales order details
+      description: Returns full sales order information including all line items, product master specs, dispatch history, and location details.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Sales Order ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sales order details retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SalesOrderDetail'
+        '403':
+          description: Unauthorized access to sales order location
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # =========================================================================
+  # 5. TRANSPORTERS
+  # =========================================================================
+  /transporters:
+    get:
+      tags:
+        - Transporters
+      summary: List registered transport & logistics companies
+      description: Returns registered transport, logistics, and carrier companies with ID, name, and short code.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search by company name or code
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transporters list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  count:
+                    type: integer
+                    example: 10
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transporter'
+
+  # =========================================================================
+  # 6. DASHBOARD
+  # =========================================================================
+  /dashboard/summary:
+    get:
+      tags:
+        - Dashboard
+      summary: Real-time operational KPI counts
+      description: Returns real-time counts for ready orders, vehicles inside gate, loaded vehicles, cleared today, and held vehicles.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: location_id
+          in: query
+          description: Optional filter by site/godown location ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Dashboard summary retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/DashboardSummary'
+
+  # =========================================================================
+  # 7. SECURITY GUARD APP
+  # =========================================================================
+  /guard/hold-reasons:
+    get:
+      tags:
+        - Security Guard App
+      summary: List standardized hold/rejection reasons
+      description: Returns standardized hold/rejection reasons used during physical gate inspection (Quantity Mismatch, Damaged Goods, Missing E-Way Bill, Invoice Mismatch, Vehicle Unfit, Other).
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Hold reasons list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HoldReason'
+
+  /guard/orders-ready:
+    get:
+      tags:
+        - Security Guard App
+      summary: List confirmed orders ready for vehicle registration
+      description: Returns paginated confirmed sales orders with order id, order number, customer name, customer code, location id, location name, total lines, pending pieces, and order dates.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search order number or customer name/phone
+          schema:
+            type: string
+        - name: location_id
+          in: query
+          description: Filter by location ID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Ready orders retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GuardOrderReady'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /guard/vehicles/lookup:
+    get:
+      tags:
+        - Security Guard App
+      summary: Lookup vehicle history by license plate
+      description: Returns the last recorded driver name, driver phone, and transporter name for the queried license plate number (or found=false if new).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: vehicle_no
+          in: query
+          required: true
+          description: Vehicle license plate number
+          schema:
+            type: string
+            example: AS-11-CC-1234
+      responses:
+        '200':
+          description: Vehicle lookup result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  found:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VehicleLookup'
+
+  /guard/vehicles/register:
+    post:
+      tags:
+        - Security Guard App
+      summary: Register a vehicle for an order (Red Mark)
+      description: Creates a new gate pass record in 'registered' status with Red Mark.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - vehicle_no
+                - sales_order_id
+              properties:
+                vehicle_no:
+                  type: string
+                  example: AS-11-CC-1234
+                sales_order_id:
+                  type: integer
+                  example: 1
+                driver_name:
+                  type: string
+                  example: Ramesh Sharma
+                driver_phone:
+                  type: string
+                  example: "9876543210"
+                transporter_name:
+                  type: string
+                  example: Fast Express Cargo
+                location_id:
+                  type: integer
+                  example: 1
+                remarks:
+                  type: string
+                  example: Arrived outside gate
+      responses:
+        '201':
+          description: Vehicle registered with Red Mark
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/VehicleGateEntry'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /guard/vehicles/gate-in:
+    post:
+      tags:
+        - Security Guard App
+      summary: Unified Register + Gate-In (Orange Mark)
+      description: Registers a new vehicle and immediately marks it as entered into premises (Orange Mark).
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - vehicle_no
+                - sales_order_id
+              properties:
+                vehicle_no:
+                  type: string
+                  example: AS-11-CC-1234
+                sales_order_id:
+                  type: integer
+                  example: 1
+                driver_name:
+                  type: string
+                  example: Ramesh Sharma
+                driver_phone:
+                  type: string
+                  example: "9876543210"
+                transporter_name:
+                  type: string
+                  example: Fast Express Cargo
+                location_id:
+                  type: integer
+                  example: 1
+                remarks:
+                  type: string
+      responses:
+        '200':
+          description: Vehicle registered and Gate-In marked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/VehicleGateEntry'
+
+  /guard/vehicles:
+    get:
+      tags:
+        - Security Guard App
+      summary: List all vehicle gate entries
+      description: List vehicle gate entries with filters for status, color mark, location, and search.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [registered, entered, loaded, cleared, rejected]
+        - name: location_id
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of vehicle gate entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VehicleGateEntry'
+
+  /guard/vehicles/{id}:
+    get:
+      tags:
+        - Security Guard App
+      summary: Get complete vehicle gate pass record
+      description: Returns full gate pass record including vehicle plate, status, color mark, sales order details, driver & transporter info, shipping document numbers (challan, e-way bill, invoice), PDF download link, complete activity timeline (who did what and when), and loaded line items.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Gate Entry ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Complete gate pass record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/VehicleGatePassFull'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /guard/vehicles/{id}/gate-in:
+    post:
+      tags:
+        - Security Guard App
+      summary: Mark existing vehicle as Gate-In (Orange Mark)
+      description: Changes vehicle status from 'registered' to 'entered' upon physical arrival at gate.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Vehicle marked as Entered (Orange Mark)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/VehicleGateEntry'
+
+  /guard/vehicles/{id}/inspection:
+    get:
+      tags:
+        - Security Guard App
+      summary: Get gate-out inspection checklist & loaded items
+      description: Returns loaded items and dispatch verification details for the security guard to inspect before gate-out clearance.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Inspection checklist retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      gate_entry:
+                        $ref: '#/components/schemas/VehicleGateEntry'
+                      inspection_items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LoadedItem'
+                      can_clear:
+                        type: boolean
+                        example: true
+
+  /guard/vehicles/{id}/gate-out:
+    post:
+      tags:
+        - Security Guard App
+      summary: Gate-Out decision (Clear with Green Mark or Hold with Reason)
+      description: Record security clearance. Either clears vehicle for exit (Green Mark) or marks as rejected/held with a specified reason.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                decision:
+                  type: string
+                  enum: [cleared, rejected]
+                  example: cleared
+                  description: "'cleared' for gate-out exit, 'rejected' for hold (or use 'action')"
+                action:
+                  type: string
+                  enum: [approve, reject]
+                  example: approve
+                  description: "'approve' for clearance, 'reject' for hold (alternative to 'decision')"
+                rejection_reason:
+                  type: string
+                  example: Quantity Mismatch
+                  description: Reason for withholding clearance (required if decision is rejected)
+                reason:
+                  type: string
+                  example: Quantity Mismatch
+                  description: Alternative field for rejection_reason
+                remarks:
+                  type: string
+                  example: All goods verified against invoice
+                challan_no:
+                  type: string
+                  example: CH-2026-001
+                eway_bill_no:
+                  type: string
+                  example: EW-2026-001
+                invoice_no:
+                  type: string
+                  example: INV-2026-001
+      responses:
+        '200':
+          description: Gate-Out decision recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/VehicleGateEntry'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # =========================================================================
+  # 8. STORE MANAGER APP
+  # =========================================================================
+  /store/entered-vehicles:
+    get:
+      tags:
+        - Store Manager App
+      summary: List vehicles inside gate ready for loading (paginated)
+      description: Paginated list of vehicles inside gate (Orange Mark) with vehicle id, gate pass number, vehicle plate, sales order id, order number, customer name, driver name, driver phone, transporter, and entry timestamp.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Search plate, gate pass, driver, transporter, or order number
+          schema:
+            type: string
+        - name: location_id
+          in: query
+          description: Filter by location ID
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 15
+      responses:
+        '200':
+          description: Entered vehicles list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StoreEnteredVehicle'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /store/vehicles/{id}/order-items:
+    get:
+      tags:
+        - Store Manager App
+      summary: Get order items and current stock for loading
+      description: Returns sales order line items, pending piece/box quantities, and current warehouse stock for loading onto the vehicle.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Gate Entry ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Order items retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      gate_entry_id:
+                        type: integer
+                      gate_pass_no:
+                        type: string
+                      vehicle_no:
+                        type: string
+                      driver_name:
+                        type: string
+                      order_id:
+                        type: integer
+                      order_no:
+                        type: string
+                      customer_name:
+                        type: string
+                      location_id:
+                        type: integer
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/StoreLoadingItem'
+
+  /store/vehicles/{id}/load:
+    post:
+      tags:
+        - Store Manager App
+      summary: Load materials onto vehicle (Changes to Red Mark)
+      description: Records loaded quantities, shipping document numbers (challan, e-way bill, invoice), and updates status to 'loaded' (Red Mark).
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - items
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - sales_order_line_id
+                      - qty_pcs
+                    properties:
+                      sales_order_line_id:
+                        type: integer
+                        example: 10
+                      qty_pcs:
+                        type: number
+                        example: 100.0
+                      qty_box:
+                        type: number
+                        example: 10.0
+                challan_no:
+                  type: string
+                  example: CH-20260919-001
+                eway_bill_no:
+                  type: string
+                  example: "241234567890"
+                invoice_no:
+                  type: string
+                  example: INV-20260919-001
+                remarks:
+                  type: string
+                  example: Loaded in good condition
+      responses:
+        '200':
+          description: Materials loaded successfully (Red Mark)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/VehicleGateEntry'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+# =========================================================================
+# COMPONENTS & SCHEMAS
+# =========================================================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+
+  responses:
+    Unauthorized:
+      description: Unauthenticated or invalid token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthenticated.
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: Resource not found.
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: The given data was invalid.
+              errors:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: System Admin
+        email:
+          type: string
+          example: admin@rainbowerp.com
+        phone:
+          type: string
+          example: "+91 98765 43210"
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["admin", "super_admin"]
+        is_guard:
+          type: boolean
+          example: true
+        is_store_manager:
+          type: boolean
+          example: true
+        permissions:
+          type: array
+          items:
+            type: string
+          example: ["orders.read", "locations.read", "gate.create"]
+        assigned_locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: FAC-MAIN
+        name:
+          type: string
+          example: Central Manufacturing Plant
+        type:
+          type: string
+          enum: [factory, warehouse]
+          example: factory
+        address:
+          type: string
+          example: Plot 42, Industrial Area Phase II, Silchar
+        gstin:
+          type: string
+          example: 18AABCS1429B1Z5
+        phone:
+          type: string
+          example: "+91 94350 11223"
+        is_active:
+          type: boolean
+          example: true
+
+    AssignedLocation:
+      allOf:
+        - $ref: '#/components/schemas/Location'
+        - type: object
+          properties:
+            type_label:
+              type: string
+              example: Site
+              description: "'Site' for factory, 'Godown' for warehouse"
+            is_assigned:
+              type: boolean
+              example: true
+              description: Whether this location is assigned to the queried user
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: stores
+        display_name:
+          type: string
+          example: Stores
+        guard_name:
+          type: string
+          example: web
+        users_count:
+          type: integer
+          example: 2
+        permissions_count:
+          type: integer
+          example: 20
+        permissions:
+          type: array
+          items:
+            type: string
+          description: Included only when ?include_permissions=1
+
+    UserDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 18
+        name:
+          type: string
+          example: Rohit Das
+        email:
+          type: string
+          example: rohit@rainbowerp.com
+        phone:
+          type: string
+          example: "9876543210"
+        is_active:
+          type: boolean
+          example: true
+        must_change_password:
+          type: boolean
+          example: false
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["stores"]
+        assigned_locations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        employee:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+              example: 5
+            employee_code:
+              type: string
+              example: EMP/2026/FAC-MAIN/0002
+        created_at:
+          type: string
+          format: date-time
+
+    SalesOrderSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        order_no:
+          type: string
+          example: SO-2026-0001
+        order_date:
+          type: string
+          format: date
+          example: "2026-09-19"
+        expected_date:
+          type: string
+          format: date
+          example: "2026-09-25"
+        status:
+          type: string
+          enum: [open, partial, closed, cancelled]
+          example: open
+        total_value:
+          type: number
+          example: 150000.00
+        is_credit_approved:
+          type: boolean
+          example: true
+        remarks:
+          type: string
+          example: Priority dispatch
+        partner:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            name:
+              type: string
+            phone:
+              type: string
+            email:
+              type: string
+            city:
+              type: string
+        location:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+            name:
+              type: string
+            type:
+              type: string
+        creator:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        metrics:
+          type: object
+          properties:
+            total_lines:
+              type: integer
+              example: 3
+            total_ordered_qty:
+              type: number
+              example: 500.0
+            total_dispatched_qty:
+              type: number
+              example: 150.0
+            pending_qty:
+              type: number
+              example: 350.0
+
+    SalesOrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/SalesOrderSummary'
+        - type: object
+          properties:
+            lines:
+              type: array
+              items:
+                $ref: '#/components/schemas/SalesOrderLine'
+
+    SalesOrderLine:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        product_id:
+          type: integer
+          example: 33
+        product_sku:
+          type: string
+          example: PVC-6002-12FT
+        product_name:
+          type: string
+          example: 12FT Panel Design 6002
+        product_uom:
+          type: string
+          example: PCS
+        qty_box_ordered:
+          type: number
+          example: 50.0
+        qty_pcs_ordered:
+          type: number
+          example: 500.0
+        qty_pcs_dispatched:
+          type: number
+          example: 150.0
+        pending_qty:
+          type: number
+          example: 350.0
+        rate:
+          type: number
+          example: 290.50
+        discount_pct:
+          type: number
+          example: 5.0
+        line_value:
+          type: number
+          example: 138000.00
+        status:
+          type: string
+          example: open
+
+    Transporter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: SS Transporter
+        code:
+          type: string
+          example: TRN-001
+
+    DashboardSummary:
+      type: object
+      properties:
+        ready_orders_count:
+          type: integer
+          example: 30
+          description: Count of confirmed orders in open or partial status
+        vehicles_inside_gate_count:
+          type: integer
+          example: 4
+          description: Count of vehicles inside factory premises (Orange Mark)
+        loaded_vehicles_count:
+          type: integer
+          example: 2
+          description: Count of loaded vehicles awaiting gate-out clearance (Red Mark)
+        cleared_today_count:
+          type: integer
+          example: 8
+          description: Count of vehicles cleared for exit today (Green Mark)
+        held_count:
+          type: integer
+          example: 1
+          description: Count of vehicles currently held due to inspection discrepancy
+
+    HoldReason:
+      type: object
+      properties:
+        code:
+          type: string
+          example: quantity_mismatch
+        label:
+          type: string
+          example: Quantity Mismatch
+
+    VehicleLookup:
+      type: object
+      nullable: true
+      properties:
+        vehicle_no:
+          type: string
+          example: AS-11-CC-1234
+        driver_name:
+          type: string
+          example: Mahesh Kumar
+        driver_phone:
+          type: string
+          example: "+91 89999 22333"
+        transporter_name:
+          type: string
+          example: Speed Cargo
+        last_visit_at:
+          type: string
+          format: date-time
+
+    GuardOrderReady:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          example: 1
+        order_number:
+          type: string
+          example: SO-MIG-2026-002
+        customer_name:
+          type: string
+          example: Metro Decorators & Traders
+        customer_code:
+          type: string
+          example: PTR-CUST-002
+        location_id:
+          type: integer
+          example: 1
+        location_name:
+          type: string
+          example: Central Manufacturing Plant
+        total_lines:
+          type: integer
+          example: 4
+        pending_pieces:
+          type: number
+          example: 600.0
+        order_date:
+          type: string
+          format: date
+          example: "2026-09-15"
+        expected_date:
+          type: string
+          format: date
+          example: "2026-09-22"
+        status:
+          type: string
+          example: open
+
+    VehicleGateEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 5
+        gate_pass_no:
+          type: string
+          example: GP-20260915-0003
+        vehicle_no:
+          type: string
+          example: GJ 05 BX 2343
+        driver_name:
+          type: string
+          example: Mahesh Kumar
+        driver_phone:
+          type: string
+          example: "+91 89999 22333"
+        transporter_name:
+          type: string
+          example: Speed Cargo
+        sales_order_id:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [registered, entered, loaded, cleared, rejected]
+          example: entered
+        color_mark:
+          type: string
+          enum: [red, orange, green, rejected]
+          example: orange
+        color_mark_label:
+          type: string
+          example: Orange Mark (Entered / Gate-In)
+
+    VehicleGatePassFull:
+      allOf:
+        - $ref: '#/components/schemas/VehicleGateEntry'
+        - type: object
+          properties:
+            vehicle_plate:
+              type: string
+              example: GJ 05 BX 2343
+            shipping_documents:
+              type: object
+              properties:
+                challan_no:
+                  type: string
+                  example: CH-20260814-2
+                eway_bill_no:
+                  type: string
+                  example: HH-893534895
+                invoice_no:
+                  type: string
+                  example: INV-5345345
+            pdf_url:
+              type: string
+              example: https://indigo-parrot-908857.hostingersite.com/gate-passes/5/print
+            location:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                code:
+                  type: string
+            sales_order:
+              type: object
+              properties:
+                id:
+                  type: integer
+                order_no:
+                  type: string
+                customer_name:
+                  type: string
+                customer_code:
+                  type: string
+                order_date:
+                  type: string
+                total_value:
+                  type: number
+            loaded_items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LoadedItem'
+            activity_timeline:
+              type: array
+              items:
+                $ref: '#/components/schemas/ActivityTimelineItem'
+            registered_at:
+              type: string
+              format: date-time
+            entered_at:
+              type: string
+              format: date-time
+            loaded_at:
+              type: string
+              format: date-time
+            cleared_at:
+              type: string
+              format: date-time
+            rejected_at:
+              type: string
+              format: date-time
+            rejection_reason:
+              type: string
+              nullable: true
+            dispatch_no:
+              type: string
+              nullable: true
+
+    LoadedItem:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 33
+        product_name:
+          type: string
+          example: 12FT Panel Design 6002
+        sku:
+          type: string
+          example: PVC-6002-12FT
+        qty_pcs:
+          type: number
+          example: 100.0
+        qty_box:
+          type: number
+          example: 10.0
+
+    ActivityTimelineItem:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [registered, entered, loaded, cleared, rejected]
+          example: entered
+        title:
+          type: string
+          example: Gate-In Completed
+        color_mark:
+          type: string
+          example: orange
+        timestamp:
+          type: string
+          format: date-time
+        user_name:
+          type: string
+          example: Main Gate Security Guard
+        remarks:
+          type: string
+          nullable: true
+
+    StoreEnteredVehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        vehicle_id:
+          type: integer
+          example: 2
+        gate_pass_no:
+          type: string
+          example: GP-20260919-0001
+        gate_pass_number:
+          type: string
+          example: GP-20260919-0001
+        vehicle_no:
+          type: string
+          example: AS-11-CC-9988
+        vehicle_plate:
+          type: string
+          example: AS-11-CC-9988
+        sales_order_id:
+          type: integer
+          example: 12
+        order_no:
+          type: string
+          example: SO-2026-0012
+        order_number:
+          type: string
+          example: SO-2026-0012
+        customer_name:
+          type: string
+          example: Acme Interiors & Buildcon
+        customer_code:
+          type: string
+          example: PTR-CUST-001
+        driver_name:
+          type: string
+          example: Ramu Singh
+        driver_phone:
+          type: string
+          example: "+91 98765 00000"
+        transporter:
+          type: string
+          example: SS Transporter
+        transporter_name:
+          type: string
+          example: SS Transporter
+        location_id:
+          type: integer
+          example: 1
+        location_name:
+          type: string
+          example: Central Manufacturing Plant
+        status:
+          type: string
+          example: entered
+        color_mark:
+          type: string
+          example: orange
+        color_mark_label:
+          type: string
+          example: Orange Mark (Entered / Gate-In)
+        entry_timestamp:
+          type: string
+          format: date-time
+        entered_at:
+          type: string
+          example: "2026-09-19 14:30"
+        entered_by_name:
+          type: string
+          example: Main Gate Security Guard
+        pending_lines_count:
+          type: integer
+          example: 3
+
+    StoreLoadingItem:
+      type: object
+      properties:
+        sales_order_line_id:
+          type: integer
+          example: 10
+        product_id:
+          type: integer
+          example: 33
+        product_name:
+          type: string
+          example: 12FT Panel Design 6002
+        sku:
+          type: string
+          example: PVC-6002-12FT
+        pcs_per_box:
+          type: number
+          example: 10.0
+        qty_ordered_pcs:
+          type: number
+          example: 500.0
+        qty_dispatched_pcs:
+          type: number
+          example: 150.0
+        qty_pending_pcs:
+          type: number
+          example: 350.0
+        qty_pending_boxes:
+          type: number
+          example: 35.0
+        current_stock_pcs:
+          type: number
+          example: 450.0
+        rate:
+          type: number
+          example: 290.50
+        status:
+          type: string
+          example: open
+
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 4
+        per_page:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 52

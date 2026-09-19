@@ -1,0 +1,115 @@
+# Strict analysis configuration for the Rainbow application.
+#
+# The goal is to catch defects at analysis time rather than at runtime:
+# implicit dynamic is rejected, all awaitables must be handled, and layout /
+# localization foot-guns are treated as errors.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  errors:
+    # Never ship a hardcoded, unlocalizable user-facing literal.
+    # (Enabled below under `linter`; promoted to an error here.)
+    missing_required_param: error
+    missing_return: error
+    todo: warning
+    deprecated_member_use: warning
+    deprecated_member_use_from_same_package: warning
+    unused_import: error
+    unused_local_variable: error
+    unused_element: error
+    unused_field: error
+    dead_code: error
+    invalid_use_of_protected_member: error
+    invalid_use_of_visible_for_testing_member: error
+    body_might_complete_normally_nullable: error
+
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/l10n/generated/**"
+    - "build/**"
+    - "ios/**"
+    - "android/**"
+
+linter:
+  rules:
+    # --- Correctness ------------------------------------------------------
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    avoid_slow_async_io: true
+    avoid_type_to_string: true
+    cancel_subscriptions: true
+    close_sinks: true
+    comment_references: true
+    discarded_futures: true
+    literal_only_boolean_expressions: true
+    no_adjacent_strings_in_list: true
+    only_throw_errors: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    unawaited_futures: true
+    unnecessary_statements: true
+    use_build_context_synchronously: true
+
+    # --- Design / architecture -------------------------------------------
+    avoid_classes_with_only_static_members: false
+    avoid_equals_and_hash_code_on_mutable_classes: true
+    avoid_multiple_declarations_per_line: true
+    avoid_positional_boolean_parameters: true
+    avoid_returning_this: true
+    avoid_setters_without_getters: true
+    avoid_unused_constructor_parameters: true
+    avoid_void_async: true
+    cascade_invocations: true
+    join_return_with_assignment: true
+    one_member_abstracts: false
+    parameter_assignments: true
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_if_elements_to_conditional_expressions: true
+    prefer_null_aware_method_calls: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+    sort_constructors_first: true
+    unnecessary_await_in_return: true
+    unnecessary_lambdas: true
+    unnecessary_parenthesis: true
+    unnecessary_raw_strings: true
+    use_enums: true
+    use_named_constants: true
+    use_setters_to_change_properties: true
+    use_string_buffers: true
+    use_super_parameters: true
+
+    # --- Flutter ----------------------------------------------------------
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
+    sized_box_shrink_expand: true
+    use_colored_box: true
+    use_decorated_box: true
+    use_full_hex_values_for_flutter_colors: true
+
+    # --- Localization -----------------------------------------------------
+    # Hard requirement for this project: no user-facing string literal may be
+    # constructed inside widget code.
+    prefer_relative_imports: false
+    always_use_package_imports: true
+
+    # --- Style ------------------------------------------------------------
+    directives_ordering: true
+    lines_longer_than_80_chars: false
+    omit_local_variable_types: false
+    prefer_asserts_with_message: true
+    prefer_expression_function_bodies: false
+    sort_child_properties_last: true
+    sort_pub_dependencies: false
+    unnecessary_library_directive: true

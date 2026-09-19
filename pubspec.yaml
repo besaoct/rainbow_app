@@ -1,0 +1,106 @@
+name: rainbow_app
+description: >-
+  Rainbow — gate and dispatch operations for Rainbow ERP. Security guards
+  register vehicle gate-in, store managers record loading, and guards clear
+  the vehicle for exit.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Networking
+  dio: ^5.11.1
+
+  # Routing
+  go_router: ^17.5.0
+
+  # State management
+  flutter_riverpod: ^3.4.3
+
+  # Responsive scaling
+  flutter_screenutil: ^5.9.3
+
+  # Rendering of the bundled SVG icon set and logos
+  flutter_svg: ^2.3.0
+
+  # Formatting + localization runtime
+  intl: 0.20.2
+
+  # Glyphs for the Cupertino widgets Flutter substitutes on iOS through the
+  # `.adaptive` constructors (refresh indicator, progress indicator, dialogs).
+  cupertino_icons: ^1.0.8
+
+  # Persistence: preferences (non-sensitive) and keychain/keystore (tokens)
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^11.2.0
+
+  # Native splash. Also a runtime dependency: bootstrap() holds the native
+  # splash until the first frame is ready and then removes it.
+  flutter_native_splash: ^2.4.8
+  characters: ^1.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/icons/
+    - assets/logos/
+    - assets/images/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-400.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-500.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-600.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-700.ttf
+          weight: 700
+
+# ---------------------------------------------------------------------------
+# Launcher icons — regenerate with: dart run flutter_launcher_icons
+# ---------------------------------------------------------------------------
+flutter_launcher_icons:
+  image_path: assets/branding/app_icon.png
+  android: ic_launcher
+  adaptive_icon_background: "#120B2E"
+  adaptive_icon_foreground: assets/branding/app_icon_foreground.png
+  adaptive_icon_monochrome: assets/branding/app_icon_monochrome.png
+  min_sdk_android: 24
+  remove_alpha_ios: true
+  ios: true
+
+# ---------------------------------------------------------------------------
+# Native splash — regenerate with: dart run flutter_native_splash:create
+# ---------------------------------------------------------------------------
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/branding/splash_logo.png
+  color_dark: "#0B1020"
+  image_dark: assets/branding/splash_logo_dark.png
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#0B1020"
+    image: assets/branding/splash_android12.png
+    image_dark: assets/branding/splash_android12_dark.png
+  android: true
+  ios: true
+  web: false
