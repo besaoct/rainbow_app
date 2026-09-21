@@ -11,6 +11,10 @@ on:
       - main
   workflow_dispatch:
     inputs:
+      version:
+        description: 'Release version (e.g. 1.0.1). Leave empty to use tag or pubspec.yaml'
+        required: false
+        type: string
       publish_release:
         description: 'Publish a GitHub Release with artifacts'
         required: false
@@ -44,6 +48,23 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Determine App & Release Version
+        id: versioning
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            RAW_VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            RAW_VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            RAW_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1 | tr -d '[:space:]')
+          fi
+          BUILD_NUM="${{ github.run_number }}"
+          echo "APP_VERSION=${RAW_VERSION}" >> $GITHUB_ENV
+          echo "APP_BUILD_NUMBER=${BUILD_NUM}" >> $GITHUB_ENV
+          echo "version=${RAW_VERSION}" >> $GITHUB_OUTPUT
+          echo "build_number=${BUILD_NUM}" >> $GITHUB_OUTPUT
+          echo "Target build version: ${RAW_VERSION} (code: ${BUILD_NUM})"
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -70,36 +91,52 @@ jobs:
           EOF
 
       - name: Build Release APK
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release \
+            --build-name="${{ env.APP_VERSION }}" \
+            --build-number="${{ env.APP_BUILD_NUMBER }}" \
+            --dart-define=APP_VERSION="${{ env.APP_VERSION }}" \
+            --dart-define=APP_BUILD_NUMBER="${{ env.APP_BUILD_NUMBER }}"
 
       - name: Build Release App Bundle (AAB)
-        run: flutter build appbundle --release
+        run: |
+          flutter build appbundle --release \
+            --build-name="${{ env.APP_VERSION }}" \
+            --build-number="${{ env.APP_BUILD_NUMBER }}" \
+            --dart-define=APP_VERSION="${{ env.APP_VERSION }}" \
+            --dart-define=APP_BUILD_NUMBER="${{ env.APP_BUILD_NUMBER }}"
 
-      - name: Rename Artifacts for Distribution
+      - name: Prepare Distribution Artifacts
         run: |
           mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/Rainbow-${{ env.APP_VERSION }}.apk
+          cp build/app/outputs/bundle/release/app-release.aab dist/Rainbow-${{ env.APP_VERSION }}.aab
           cp build/app/outputs/flutter-apk/app-release.apk dist/Rainbow-release.apk
           cp build/app/outputs/bundle/release/app-release.aab dist/Rainbow-release.aab
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Rainbow-release-apk
-          path: dist/Rainbow-release.apk
+          name: Rainbow-${{ env.APP_VERSION }}-apk
+          path: dist/Rainbow-${{ env.APP_VERSION }}.apk
           retention-days: 30
 
       - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Rainbow-release-aab
-          path: dist/Rainbow-release.aab
+          name: Rainbow-${{ env.APP_VERSION }}-aab
+          path: dist/Rainbow-${{ env.APP_VERSION }}.aab
           retention-days: 30
 
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.publish_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          name: "Rainbow Mobile v${{ env.APP_VERSION }}"
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', env.APP_VERSION) }}
           files: |
+            dist/Rainbow-${{ env.APP_VERSION }}.apk
+            dist/Rainbow-${{ env.APP_VERSION }}.aab
             dist/Rainbow-release.apk
             dist/Rainbow-release.aab
           generate_release_notes: true

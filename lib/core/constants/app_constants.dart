@@ -9,11 +9,17 @@ abstract final class AppConstants {
   /// Android application id / iOS bundle identifier.
   static const String packageId = 'com.gitcs.rainbow';
 
-  /// Marketing version. Kept in sync with `pubspec.yaml`'s `version:` field.
-  static const String version = '1.0.0';
+  /// Marketing version. Overridden in CI builds via `--dart-define=APP_VERSION=...`
+  static const String version = String.fromEnvironment(
+    'APP_VERSION',
+    defaultValue: '1.0.0',
+  );
 
-  /// Build number. Kept in sync with `pubspec.yaml`'s `version:` field.
-  static const String buildNumber = '1';
+  /// Build number. Overridden in CI builds via `--dart-define=APP_BUILD_NUMBER=...`
+  static const String buildNumber = String.fromEnvironment(
+    'APP_BUILD_NUMBER',
+    defaultValue: '1',
+  );
 
   /// Locales the app ships translations for.
   static const List<Locale> supportedLocales = <Locale>[
