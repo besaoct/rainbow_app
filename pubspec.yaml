@@ -33,7 +33,7 @@ dependencies:
   flutter_svg: ^2.3.0
 
   # Formatting + localization runtime
-  intl: 0.20.2
+  intl: ^0.20.2
 
   # Glyphs for the Cupertino widgets Flutter substitutes on iOS through the
   # `.adaptive` constructors (refresh indicator, progress indicator, dialogs).
