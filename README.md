@@ -421,13 +421,21 @@ flutter build apk --release --split-per-abi      # ~20 MB per ABI
 flutter build ipa --release
 ```
 
-**Android signing.** `android/app/build.gradle.kts` currently signs release
-builds with the debug key so `flutter run --release` works out of the box.
-Before publishing, create `android/key.properties` (git-ignored) and point the
-release `signingConfig` at your upload key.
+**Android signing.** Release builds are configured via `android/key.properties`
+(see `android/key.properties.example`):
 
-Release builds run R8 with `android/app/proguard-rules.pro`, which keeps the
-AndroidX Security and Tink classes `flutter_secure_storage` reflects over.
+```properties
+storePassword=your_store_password
+keyPassword=your_key_password
+keyAlias=rainbow
+storeFile=rainbow-release.jks
+```
+
+If `key.properties` is omitted, the build gracefully defaults to the debug key
+so local development is never blocked. Release builds enable code shrinking and
+resource minimization (`isMinifyEnabled = true`, `isShrinkResources = true`) with
+ProGuard rules in `android/app/proguard-rules.pro` protecting AndroidX Security
+and Tink classes.
 
 ---
 
