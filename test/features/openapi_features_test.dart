@@ -12,11 +12,13 @@ import 'package:rainbow_app/features/store/models/entered_vehicle.dart';
 void main() {
   group('OpenAPI 3.0.3 Models Deserialization', () {
     test('Transporter parses OpenAPI schema', () {
-      final Transporter transporter = Transporter.fromJson(const <String, Object?>{
-        'id': 101,
-        'name': 'V-Trans India Ltd',
-        'code': 'VTR',
-      });
+      final Transporter transporter = Transporter.fromJson(
+        const <String, Object?>{
+          'id': 101,
+          'name': 'V-Trans India Ltd',
+          'code': 'VTR',
+        },
+      );
       expect(transporter.id, 101);
       expect(transporter.name, 'V-Trans India Ltd');
       expect(transporter.code, 'VTR');
@@ -47,13 +49,14 @@ void main() {
     });
 
     test('DashboardSummary parses OpenAPI schema', () {
-      final DashboardSummary summary = DashboardSummary.fromJson(<String, Object?>{
-        'ready_orders_count': 30,
-        'vehicles_inside_gate_count': 4,
-        'loaded_vehicles_count': 2,
-        'cleared_today_count': 8,
-        'held_count': 1,
-      });
+      final DashboardSummary summary =
+          DashboardSummary.fromJson(<String, Object?>{
+            'ready_orders_count': 30,
+            'vehicles_inside_gate_count': 4,
+            'loaded_vehicles_count': 2,
+            'cleared_today_count': 8,
+            'held_count': 1,
+          });
       expect(summary.readyOrdersCount, 30);
       expect(summary.vehiclesInsideGateCount, 4);
       expect(summary.loadedVehiclesCount, 2);
@@ -62,7 +65,8 @@ void main() {
     });
 
     test('VehicleGatePassFull parses complete audit trail and documents', () {
-      final VehicleGatePassFull pass = VehicleGatePassFull.fromJson(<String, Object?>{
+      final VehicleGatePassFull
+      pass = VehicleGatePassFull.fromJson(<String, Object?>{
         'id': 5,
         'gate_pass_no': 'GP-20260915-0003',
         'vehicle_no': 'GJ 05 BX 2343',
@@ -72,7 +76,8 @@ void main() {
         'sales_order_id': 1,
         'status': 'entered',
         'color_mark': 'orange',
-        'pdf_url': 'https://indigo-parrot-908857.hostingersite.com/gate-passes/5/print',
+        'pdf_url':
+            'https://indigo-parrot-908857.hostingersite.com/gate-passes/5/print',
         'shipping_documents': <String, Object?>{
           'challan_no': 'CH-20260814-2',
           'eway_bill_no': 'HH-893534895',
@@ -146,47 +151,55 @@ void main() {
       expect(paged.hasMore, isTrue);
     });
 
-    test('EnteredVehicle handles OpenAPI StoreEnteredVehicle schema fields', () {
-      final EnteredVehicle vehicle = EnteredVehicle.fromJson(<String, Object?>{
-        'id': 2,
-        'vehicle_id': 2,
-        'gate_pass_number': 'GP-20260919-0001',
-        'vehicle_plate': 'AS-11-CC-9988',
-        'order_number': 'SO-2026-0012',
-        'customer_name': 'Acme Interiors',
-        'status': 'entered',
-        'pending_lines_count': 3,
-        'transporter': 'SS Transporter',
-        'entry_timestamp': '2026-09-19T14:30:00Z',
-      });
+    test(
+      'EnteredVehicle handles OpenAPI StoreEnteredVehicle schema fields',
+      () {
+        final EnteredVehicle vehicle =
+            EnteredVehicle.fromJson(<String, Object?>{
+              'id': 2,
+              'vehicle_id': 2,
+              'gate_pass_number': 'GP-20260919-0001',
+              'vehicle_plate': 'AS-11-CC-9988',
+              'order_number': 'SO-2026-0012',
+              'customer_name': 'Acme Interiors',
+              'status': 'entered',
+              'pending_lines_count': 3,
+              'transporter': 'SS Transporter',
+              'entry_timestamp': '2026-09-19T14:30:00Z',
+            });
 
-      expect(vehicle.id, 2);
-      expect(vehicle.gatePassNo, 'GP-20260919-0001');
-      expect(vehicle.vehicleNo, 'AS-11-CC-9988');
-      expect(vehicle.orderNo, 'SO-2026-0012');
-      expect(vehicle.transporterName, 'SS Transporter');
-      expect(vehicle.pendingLinesCount, 3);
-      expect(vehicle.enteredAt?.year, 2026);
-    });
+        expect(vehicle.id, 2);
+        expect(vehicle.gatePassNo, 'GP-20260919-0001');
+        expect(vehicle.vehicleNo, 'AS-11-CC-9988');
+        expect(vehicle.orderNo, 'SO-2026-0012');
+        expect(vehicle.transporterName, 'SS Transporter');
+        expect(vehicle.pendingLinesCount, 3);
+        expect(vehicle.enteredAt?.year, 2026);
+      },
+    );
 
-    test('AssignedLocation handles OpenAPI Location schema with type and address', () {
-      final AssignedLocation location = AssignedLocation.fromJson(const <String, Object?>{
-        'id': 1,
-        'code': 'FAC-MAIN',
-        'name': 'Central Manufacturing Plant',
-        'type': 'factory',
-        'address': 'Plot 42, Industrial Area, Silchar',
-        'gstin': '18AABCS1429B1Z5',
-        'phone': '+91 94350 11223',
-        'is_active': true,
-      });
+    test(
+      'AssignedLocation handles OpenAPI Location schema with type and address',
+      () {
+        final AssignedLocation location =
+            AssignedLocation.fromJson(const <String, Object?>{
+              'id': 1,
+              'code': 'FAC-MAIN',
+              'name': 'Central Manufacturing Plant',
+              'type': 'factory',
+              'address': 'Plot 42, Industrial Area, Silchar',
+              'gstin': '18AABCS1429B1Z5',
+              'phone': '+91 94350 11223',
+              'is_active': true,
+            });
 
-      expect(location.id, 1);
-      expect(location.code, 'FAC-MAIN');
-      expect(location.name, 'Central Manufacturing Plant');
-      expect(location.type, 'factory');
-      expect(location.address, 'Plot 42, Industrial Area, Silchar');
-      expect(location.isActive, isTrue);
-    });
+        expect(location.id, 1);
+        expect(location.code, 'FAC-MAIN');
+        expect(location.name, 'Central Manufacturing Plant');
+        expect(location.type, 'factory');
+        expect(location.address, 'Plot 42, Industrial Area, Silchar');
+        expect(location.isActive, isTrue);
+      },
+    );
   });
 }

@@ -159,15 +159,19 @@ class _QuickActions extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final DashboardSummary? summary =
-        ref.watch(dashboardSummaryProvider).value;
+    // Counts come from the summary endpoint rather than from the length of a
+    // list: `orders-ready` caps its page, so counting its rows under-reports
+    // the queue — the server reports 32 where the list returns 15. The list
+    // length is kept only as a fallback for when the summary call fails, so
+    // a tile shows an approximate number instead of none at all.
+    final DashboardSummary? summary = ref.watch(dashboardSummaryProvider).value;
     final int? readyOrders = role.canOperateGate
         ? (summary?.readyOrdersCount ??
-            ref.watch(readyOrdersProvider).value?.length)
+              ref.watch(readyOrdersProvider).value?.length)
         : null;
     final int? insideGate = role.canOperateStore
         ? (summary?.vehiclesInsideGateCount ??
-            ref.watch(enteredVehiclesProvider).value?.length)
+              ref.watch(enteredVehiclesProvider).value?.length)
         : null;
 
     return ResponsiveGrid(

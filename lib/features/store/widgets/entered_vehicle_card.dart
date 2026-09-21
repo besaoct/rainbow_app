@@ -71,40 +71,44 @@ class EnteredVehicleCard extends StatelessWidget {
               value: Formatters.dateTime(vehicle.enteredAt, context.localeCode),
             ),
           SizedBox(height: AppSpacing.md),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
+          // `IntrinsicHeight` + stretch makes the pill match the button's
+          // height instead of sitting as a short box beside a tall one, and
+          // keeps matching it when the text scale changes.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                // Shrink-wrapped: "2 lines" does not need a third of the row.
+                DecoratedBox(
                   decoration: BoxDecoration(
                     color: context.colors.infoContainer,
-                    borderRadius: BorderRadius.circular(AppRadius.xs),
+                    borderRadius: AppRadius.buttonRadius,
                   ),
-                  child: Text(
-                    context.l10n.lineCount(vehicle.pendingLinesCount),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.labelSmall.copyWith(
-                      color: context.colors.onInfoContainer,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    child: Center(
+                      child: Text(
+                        context.l10n.lineCount(vehicle.pendingLinesCount),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.labelSmall.copyWith(
+                          color: context.colors.onInfoContainer,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(width: AppSpacing.sm),
-              Expanded(
-                flex: 2,
-                child: AppButton(
-                  label: context.l10n.storeStartLoading,
-                  onPressed: onStartLoading,
-                  size: AppButtonSize.compact,
-                  icon: AppAssets.iconBox,
+                SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: AppButton(
+                    label: context.l10n.storeStartLoading,
+                    onPressed: onStartLoading,
+                    size: AppButtonSize.compact,
+                    icon: AppAssets.iconBox,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

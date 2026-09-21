@@ -34,11 +34,7 @@ class ActivityTimelineItem {
 
 /// Shipping and tax documents associated with the loaded dispatch.
 class ShippingDocuments {
-  const ShippingDocuments({
-    this.challanNo,
-    this.ewayBillNo,
-    this.invoiceNo,
-  });
+  const ShippingDocuments({this.challanNo, this.ewayBillNo, this.invoiceNo});
 
   factory ShippingDocuments.fromJson(Map<String, Object?> json) {
     return ShippingDocuments(
@@ -97,29 +93,31 @@ class VehicleGatePassFull {
 
     return VehicleGatePassFull(
       id: json.requireInt('id'),
-      gatePassNo: json.optString('gate_pass_no') ??
+      gatePassNo:
+          json.optString('gate_pass_no') ??
           json.optString('gate_pass_number') ??
           '',
-      vehicleNo: json.optString('vehicle_no') ??
-          json.optString('vehicle_plate') ??
-          '',
+      vehicleNo:
+          json.optString('vehicle_no') ?? json.optString('vehicle_plate') ?? '',
       status: GateEntryStatus.fromWire(
         json.optString('status') ?? json.optString('color_mark'),
       ),
       driverName: json.optString('driver_name') ?? '',
       driverPhone: json.optString('driver_phone') ?? '',
-      transporterName: json.optString('transporter_name') ??
+      transporterName:
+          json.optString('transporter_name') ??
           json.optString('transporter') ??
           '',
       salesOrderId: json.optInt('sales_order_id') ?? orderJson?.optInt('id'),
-      orderNo: json.optString('order_no') ??
-          orderJson?.optString('order_no') ??
-          '',
-      customerName: json.optString('customer_name') ??
+      orderNo:
+          json.optString('order_no') ?? orderJson?.optString('order_no') ?? '',
+      customerName:
+          json.optString('customer_name') ??
           orderJson?.optString('customer_name') ??
           '',
       customerCode: orderJson?.optString('customer_code') ?? '',
-      locationName: json.optString('location_name') ??
+      locationName:
+          json.optString('location_name') ??
           locationJson?.optString('name') ??
           '',
       locationCode: locationJson?.optString('code') ?? '',
@@ -131,16 +129,18 @@ class VehicleGatePassFull {
               ewayBillNo: json.optString('eway_bill_no'),
               invoiceNo: json.optString('invoice_no'),
             ),
-      items: (json.optMapList('loaded_items').isNotEmpty
-              ? json.optMapList('loaded_items')
-              : json.optMapList('items'))
-          .map(InspectionItem.fromJson)
-          .toList(growable: false),
-      timeline: (json.optMapList('activity_timeline').isNotEmpty
-              ? json.optMapList('activity_timeline')
-              : json.optMapList('timeline'))
-          .map(ActivityTimelineItem.fromJson)
-          .toList(growable: false),
+      items:
+          (json.optMapList('loaded_items').isNotEmpty
+                  ? json.optMapList('loaded_items')
+                  : json.optMapList('items'))
+              .map(InspectionItem.fromJson)
+              .toList(growable: false),
+      timeline:
+          (json.optMapList('activity_timeline').isNotEmpty
+                  ? json.optMapList('activity_timeline')
+                  : json.optMapList('timeline'))
+              .map(ActivityTimelineItem.fromJson)
+              .toList(growable: false),
       registeredAt: json.optDateTime('registered_at'),
       enteredAt: json.optDateTime('entered_at'),
       loadedAt: json.optDateTime('loaded_at'),

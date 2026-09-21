@@ -6,11 +6,7 @@ import 'package:rainbow_app/core/network/api_response.dart';
 /// Returned by `GET /transporters`.
 @immutable
 class Transporter {
-  const Transporter({
-    required this.id,
-    required this.name,
-    required this.code,
-  });
+  const Transporter({required this.id, required this.name, required this.code});
 
   factory Transporter.fromJson(Map<String, Object?> json) {
     return Transporter(

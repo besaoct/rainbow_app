@@ -433,6 +433,14 @@ AndroidX Security and Tink classes `flutter_secure_storage` reflects over.
 
 ## How-to guides
 
+### Read a count for the dashboard
+
+Take it from `dashboardSummaryProvider` (`GET /dashboard/summary`), not from
+the length of a list. `guard/orders-ready` returns a capped page — the server
+reports 32 ready orders where the list returns 15 — so counting rows
+under-reports the queue. A list length is only a fallback for when the summary
+call fails.
+
 ### Add a new user-facing string
 
 1. Add the key to `lib/l10n/arb/app_en.arb`, with an `@key` entry describing it

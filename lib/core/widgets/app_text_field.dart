@@ -37,6 +37,7 @@ class AppTextField extends StatelessWidget {
     this.focusNode,
     this.isOptional = false,
     this.autofillHints,
+    this.labelAction,
     super.key,
   });
 
@@ -77,6 +78,12 @@ class AppTextField extends StatelessWidget {
   /// Appends the localised "Optional" marker to the label.
   final bool isOptional;
 
+  /// A small action placed at the end of the label row — a "fill with the
+  /// maximum" shortcut, for example. It belongs here rather than beside the
+  /// field: a button next to the input has to share the row's width, which
+  /// truncates its label and leaves the two controls at different heights.
+  final Widget? labelAction;
+
   final List<String>? autofillHints;
 
   @override
@@ -84,7 +91,7 @@ class AppTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _Label(label: label, isOptional: isOptional),
+        _Label(label: label, isOptional: isOptional, action: labelAction),
         SizedBox(height: AppSpacing.xs),
         TextFormField(
           controller: controller,
@@ -206,33 +213,49 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
 }
 
 class _Label extends StatelessWidget {
-  const _Label({required this.label, required this.isOptional});
+  const _Label({required this.label, required this.isOptional, this.action});
 
   final String label;
   final bool isOptional;
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
+    // `spaceBetween` with both sides flexible: the label keeps the room it
+    // needs, the action sits at the end, and either ellipsises rather than
+    // overflowing when a translation is long on a narrow phone.
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Flexible(
-          child: Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: context.colors.textSecondary,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.labelMedium.copyWith(
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+              ),
+              if (isOptional) ...<Widget>[
+                SizedBox(width: AppSpacing.xs),
+                Text(
+                  context.l10n.labelOptional,
+                  style: AppTextStyles.caption.copyWith(
+                    color: context.colors.textTertiary,
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-        if (isOptional) ...<Widget>[
-          SizedBox(width: AppSpacing.xs),
-          Text(
-            context.l10n.labelOptional,
-            style: AppTextStyles.caption.copyWith(
-              color: context.colors.textTertiary,
-            ),
-          ),
+        if (action != null) ...<Widget>[
+          SizedBox(width: AppSpacing.sm),
+          Flexible(child: action!),
         ],
       ],
     );

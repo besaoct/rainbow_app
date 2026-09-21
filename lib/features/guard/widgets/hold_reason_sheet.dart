@@ -79,19 +79,21 @@ class _HoldReasonSheetState extends ConsumerState<HoldReasonSheet> {
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.xs,
-                children: reasons.map((HoldReason r) {
-                  final bool selected =
-                      _reason.text == r.label || _reason.text == r.code;
-                  return ChoiceChip(
-                    label: Text(r.label),
-                    selected: selected,
-                    onSelected: (bool isSelected) {
-                      setState(() {
-                        _reason.text = isSelected ? r.label : '';
-                      });
-                    },
-                  );
-                }).toList(growable: false),
+                children: reasons
+                    .map((HoldReason r) {
+                      final bool selected =
+                          _reason.text == r.label || _reason.text == r.code;
+                      return ChoiceChip(
+                        label: Text(r.label),
+                        selected: selected,
+                        onSelected: (bool isSelected) {
+                          setState(() {
+                            _reason.text = isSelected ? r.label : '';
+                          });
+                        },
+                      );
+                    })
+                    .toList(growable: false),
               ),
             ],
             SizedBox(height: AppSpacing.lg),

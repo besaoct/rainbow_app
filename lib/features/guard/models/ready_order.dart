@@ -22,15 +22,15 @@ class ReadyOrder {
   factory ReadyOrder.fromJson(Map<String, Object?> json) {
     return ReadyOrder(
       id: json.optInt('id') ?? json.requireInt('order_id'),
-      orderNo: json.optString('order_no') ??
-          json.requireString('order_number'),
+      orderNo: json.optString('order_no') ?? json.requireString('order_number'),
       customerName: json.requireString('customer_name'),
       customerCode: json.optString('customer_code') ?? '',
       locationId: json.requireInt('location_id'),
       locationName: json.optString('location_name') ?? '',
       status: json.optString('status') ?? '',
       totalLines: json.optInt('total_lines') ?? 0,
-      pendingPcs: json.optInt('pending_pcs') ??
+      pendingPcs:
+          json.optInt('pending_pcs') ??
           json.optDouble('pending_pieces')?.round() ??
           json.optInt('pending_pieces') ??
           0,

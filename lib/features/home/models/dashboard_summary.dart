@@ -13,14 +13,14 @@ class DashboardSummary {
   factory DashboardSummary.fromJson(Map<String, Object?> json) {
     return DashboardSummary(
       readyOrdersCount: json.optInt('ready_orders_count') ?? 0,
-      vehiclesInsideGateCount: json.optInt('vehicles_inside_gate_count') ??
+      vehiclesInsideGateCount:
+          json.optInt('vehicles_inside_gate_count') ??
           json.optInt('inside_gate_count') ??
           0,
       loadedVehiclesCount: json.optInt('loaded_vehicles_count') ?? 0,
       clearedTodayCount: json.optInt('cleared_today_count') ?? 0,
-      heldCount: json.optInt('held_count') ??
-          json.optInt('held_vehicles_count') ??
-          0,
+      heldCount:
+          json.optInt('held_count') ?? json.optInt('held_vehicles_count') ?? 0,
     );
   }
 

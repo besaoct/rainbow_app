@@ -68,6 +68,13 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool canPop = Navigator.of(context).canPop();
 
+    // Read the system inset here, above our own `Scaffold`. `Scaffold`
+    // strips the bottom padding from the `bottomSheet` slot before the child
+    // is built, so a `SafeArea` inside the bar is a no-op and the primary
+    // action ends up under Android's gesture bar. Measured by
+    // `bottom_bar_test.dart`.
+    final double systemBottomInset = MediaQuery.paddingOf(context).bottom;
+
     Widget content = body;
     if (padded) {
       content = ContentInset(maxWidth: maxContentWidth, child: content);
@@ -118,7 +125,9 @@ class AppScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       // `bottomSheet` sits above the keyboard inset, so the primary action
       // stays reachable while a field is focused.
-      bottomSheet: bottomBar == null ? null : _BottomBar(child: bottomBar!),
+      bottomSheet: bottomBar == null
+          ? null
+          : _BottomBar(bottomInset: systemBottomInset, child: bottomBar!),
       resizeToAvoidBottomInset: true,
     );
   }
@@ -222,9 +231,13 @@ class _BackButton extends StatelessWidget {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.child});
+  const _BottomBar({required this.child, required this.bottomInset});
 
   final Widget child;
+
+  /// System inset at the bottom of the window, captured before `Scaffold`
+  /// removed it from the ambient `MediaQuery`.
+  final double bottomInset;
 
   @override
   Widget build(BuildContext context) {
@@ -238,26 +251,23 @@ class _BottomBar extends StatelessWidget {
           ),
         ),
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.screenH,
-            AppSpacing.md,
-            AppSpacing.screenH,
-            AppSpacing.md,
-          ),
-          // `heightFactor: 1` is load-bearing: the bottom-sheet slot passes
-          // loose constraints, and a plain `Center` would expand to fill
-          // them, floating the action bar into the middle of the screen.
-          child: Align(
-            heightFactor: 1,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: AppSize.maxContentWidth,
-              ),
-              child: child,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenH,
+          AppSpacing.md,
+          AppSpacing.screenH,
+          AppSpacing.md + bottomInset,
+        ),
+        // `heightFactor: 1` is load-bearing: the bottom-sheet slot passes
+        // loose constraints, and a plain `Center` would expand to fill
+        // them, floating the action bar into the middle of the screen.
+        child: Align(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSize.maxContentWidth,
             ),
+            child: child,
           ),
         ),
       ),

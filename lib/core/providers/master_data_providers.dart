@@ -7,26 +7,29 @@ import 'package:rainbow_app/features/home/models/dashboard_summary.dart';
 
 final Provider<MasterDataRepository> masterDataRepositoryProvider =
     Provider<MasterDataRepository>((Ref ref) {
-  return MasterDataRepository(ref.watch(apiClientProvider));
-}, name: 'masterDataRepository');
+      return MasterDataRepository(ref.watch(apiClientProvider));
+    }, name: 'masterDataRepository');
 
 /// Active site and godown locations from `GET /locations`.
 final FutureProvider<List<AssignedLocation>> locationsProvider =
     FutureProvider<List<AssignedLocation>>((Ref ref) async {
-  return ref.watch(masterDataRepositoryProvider).fetchLocations(activeOnly: true);
-}, name: 'locations');
+      return ref
+          .watch(masterDataRepositoryProvider)
+          .fetchLocations(activeOnly: true);
+    }, name: 'locations');
 
 /// Registered transporters from `GET /transporters`.
-final transportersProvider =
-    FutureProvider.family<List<Transporter>, String?>((
+final transportersProvider = FutureProvider.family<List<Transporter>, String?>((
   Ref ref,
   String? search,
 ) async {
-  return ref.watch(masterDataRepositoryProvider).fetchTransporters(search: search);
+  return ref
+      .watch(masterDataRepositoryProvider)
+      .fetchTransporters(search: search);
 }, name: 'transporters');
 
 /// Real-time operational dashboard KPIs from `GET /dashboard/summary`.
 final FutureProvider<DashboardSummary> dashboardSummaryProvider =
     FutureProvider<DashboardSummary>((Ref ref) async {
-  return ref.watch(masterDataRepositoryProvider).fetchDashboardSummary();
-}, name: 'dashboardSummary');
+      return ref.watch(masterDataRepositoryProvider).fetchDashboardSummary();
+    }, name: 'dashboardSummary');

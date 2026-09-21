@@ -56,9 +56,7 @@ class MasterDataRepository {
     final ApiResponse<DashboardSummary> response = await _client
         .get<DashboardSummary>(
           ApiEndpoints.dashboardSummary,
-          query: <String, Object?>{
-            ApiEndpoints.qLocationId: ?locationId,
-          },
+          query: <String, Object?>{ApiEndpoints.qLocationId: ?locationId},
           decode: (Object? data) => DashboardSummary.fromJson(asJsonMap(data)),
         );
     return response.data;

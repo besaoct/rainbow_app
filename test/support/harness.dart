@@ -21,11 +21,20 @@ import 'fixtures.dart';
 
 /// A device to render a screen at, for the responsive and overflow checks.
 class TestDevice {
-  const TestDevice(this.name, this.size, {this.textScale = 1.0});
+  const TestDevice(
+    this.name,
+    this.size, {
+    this.textScale = 1.0,
+    this.bottomInset = 0,
+  });
 
   final String name;
   final Size size;
   final double textScale;
+
+  /// System inset at the bottom of the screen, in logical pixels — Android's
+  /// gesture bar or an iPhone's home indicator.
+  final double bottomInset;
 
   @override
   String toString() =>
@@ -82,6 +91,7 @@ class TestHarness {
   /// Registers the fixtures the gate and store screens read.
   void withDefaultRoutes() {
     api
+      ..on('/dashboard/summary', const FakeResponse(Fixtures.dashboardSummary))
       ..on('/guard/orders-ready', const FakeResponse(Fixtures.ordersReady))
       ..on(
         '/guard/vehicles/gate-in',
@@ -221,7 +231,9 @@ Future<void> pumpAt(
   // anchored to the bottom.
   tester.view
     ..physicalSize = device.size * 3
-    ..devicePixelRatio = 3;
+    ..devicePixelRatio = 3
+    ..padding = FakeViewPadding(bottom: device.bottomInset * 3)
+    ..viewPadding = FakeViewPadding(bottom: device.bottomInset * 3);
   tester.platformDispatcher.textScaleFactorTestValue = device.textScale;
   addTearDown(() {
     tester.view.reset();

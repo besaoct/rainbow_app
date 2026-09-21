@@ -28,6 +28,7 @@ import 'package:rainbow_app/features/guard/models/vehicle_lookup.dart';
 import 'package:rainbow_app/features/guard/providers/guard_providers.dart';
 import 'package:rainbow_app/features/guard/widgets/location_picker.dart';
 import 'package:rainbow_app/features/guard/widgets/order_picker.dart';
+import 'package:rainbow_app/features/guard/widgets/transporter_picker.dart';
 
 /// Registers an arriving vehicle against a sales order and issues a gate pass.
 class GateInScreen extends ConsumerStatefulWidget {
@@ -84,8 +85,9 @@ class _GateInScreenState extends ConsumerState<GateInScreen> {
     if (clean.length < 5) return;
     _lookupDebounce = Timer(const Duration(milliseconds: 600), () async {
       try {
-        final VehicleLookup? lookup =
-            await ref.read(guardRepositoryProvider).lookupVehicle(value);
+        final VehicleLookup? lookup = await ref
+            .read(guardRepositoryProvider)
+            .lookupVehicle(value);
         if (lookup != null && mounted) {
           setState(() {
             if (_driverName.text.trim().isEmpty &&
@@ -338,32 +340,30 @@ class _GateInScreenState extends ConsumerState<GateInScreen> {
               textInputAction: TextInputAction.next,
               maxLength: AppConstants.maxNameLength,
               errorText: _fieldErrors['transporter_name']?.first,
+              onChanged: (_) => setState(() {}),
               validator: (String? v) => Validators.maxLength(
                 v,
                 AppConstants.maxNameLength,
                 context.l10n,
               ),
             ),
-            if ((ref.watch(transportersProvider(null)).value ?? const <Transporter>[]).isNotEmpty &&
-                _transporter.text.trim().isEmpty) ...<Widget>[
-              SizedBox(height: AppSpacing.xs),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.xs,
-                children: (ref.watch(transportersProvider(null)).value ?? const <Transporter>[])
-                    .take(4)
-                    .map((Transporter t) {
-                  return ActionChip(
-                    label: Text(t.name),
-                    onPressed: () {
-                      setState(() {
-                        _transporter.text = t.name;
-                      });
-                    },
+            TransporterPicker(
+              transporters:
+                  ref.watch(transportersProvider(null)).value ??
+                  const <Transporter>[],
+              selectedName: _transporter.text,
+              enabled: !_isSubmitting,
+              onSelected: (String? name) {
+                setState(() {
+                  _transporter.text = name ?? '';
+                  // Keep the caret after the inserted name so the field is
+                  // immediately editable for a correction.
+                  _transporter.selection = TextSelection.collapsed(
+                    offset: _transporter.text.length,
                   );
-                }).toList(growable: false),
-              ),
-            ],
+                });
+              },
+            ),
             SizedBox(height: AppSpacing.lg),
             AppTextField(
               label: context.l10n.remarksLabel,

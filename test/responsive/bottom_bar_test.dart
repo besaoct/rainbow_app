@@ -49,4 +49,39 @@ void main() {
       });
     }
   }
+
+  group('system insets', () {
+    // Android's gesture bar and the iPhone home indicator both sit in the
+    // bottom inset. The action bar has to clear it, or the primary button on
+    // every form ends up under the system navigation.
+    const double inset = 34;
+
+    for (final MapEntry<String, (Widget, String)> screen in screens.entries) {
+      testWidgets('${screen.key} action bar clears the bottom inset', (
+        WidgetTester tester,
+      ) async {
+        final TestHarness harness = TestHarness()..withDefaultRoutes();
+        await harness.signIn();
+
+        const TestDevice device = TestDevice(
+          'phone with gesture bar',
+          Size(390, 844),
+          bottomInset: inset,
+        );
+        await pumpAt(tester, device, harness.wrap(screen.value.$1));
+
+        final Rect rect = tester.getRect(
+          find.widgetWithText(AppButton, screen.value.$2),
+        );
+        expect(
+          rect.bottom,
+          lessThanOrEqualTo(device.size.height - inset),
+          reason:
+              '${screen.key}: the button reaches ${rect.bottom} in an '
+              '${device.size.height}pt window with a ${inset}pt inset, so it '
+              'sits under the system bar',
+        );
+      });
+    }
+  });
 }

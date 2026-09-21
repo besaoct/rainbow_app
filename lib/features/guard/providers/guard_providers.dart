@@ -59,8 +59,9 @@ final vehicleLookupProvider = FutureProvider.autoDispose
 /// Complete gate pass record from `GET /guard/vehicles/{id}`.
 final vehicleGatePassFullProvider = FutureProvider.autoDispose
     .family<VehicleGatePassFull, int>(
-      (Ref ref, int vehicleId) =>
-          ref.watch(guardRepositoryProvider).fetchVehicleGatePassFull(vehicleId),
+      (Ref ref, int vehicleId) => ref
+          .watch(guardRepositoryProvider)
+          .fetchVehicleGatePassFull(vehicleId),
       name: 'vehicleGatePassFull',
     );
 

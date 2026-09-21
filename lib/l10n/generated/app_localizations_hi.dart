@@ -328,13 +328,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get quickActionGateIn => 'गेट-इन';
 
   @override
-  String get quickActionReadyOrders => 'तैयार ऑर्डर';
+  String get quickActionReadyOrders => 'ऑर्डर';
 
   @override
   String get quickActionVehicles => 'वाहन';
 
   @override
-  String get quickActionInsideGate => 'गेट के अंदर';
+  String get quickActionInsideGate => 'लोडिंग';
 
   @override
   String get homeTodayAtAGlance => 'आज एक नज़र में';
@@ -469,6 +469,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get transporterHint => 'परिवहन कंपनी का नाम';
+
+  @override
+  String get transporterSuggestionsLabel => 'या एक चुनें';
 
   @override
   String get remarksLabel => 'टिप्पणी';
@@ -772,7 +775,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get storePendingLinesLabel => 'लंबित पंक्तियाँ';
 
   @override
-  String get storeLoadFullPending => 'सभी लंबित लोड करें';
+  String get storeLoadFullPending => 'सभी लोड करें';
 
   @override
   String storeItemsSummary(int loaded, int total) {

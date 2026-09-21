@@ -11,9 +11,18 @@ import 'package:flutter/widgets.dart';
 /// independently — and a `GridView` can only do it by fixing an aspect ratio,
 /// which breaks as soon as the text scale or the language changes.
 ///
-/// Children are measured once at the column width, then laid out again at the
-/// resulting uniform height. Two passes over a handful of cards is cheap, and
-/// it avoids depending on intrinsic sizing, which not every widget supports.
+/// Children are measured once at the column width, then laid out again with
+/// that height as a *minimum*. Two passes over a handful of cards is cheap,
+/// and it avoids depending on intrinsic sizing, which not every widget
+/// supports.
+///
+/// The second pass deliberately does not use a tight height. A child laid out
+/// under tight constraints becomes a relayout boundary, so when it later
+/// changes size — a tile whose count arrives from the network after the first
+/// frame — `markNeedsLayout` stops at the child and the grid never
+/// re-measures, leaving the new content to overflow a cell sized for the old.
+/// Taking the row's height from what the children actually report keeps the
+/// cells uniform and lets them grow.
 class UniformGrid extends MultiChildRenderObjectWidget {
   const UniformGrid({
     required this.columns,
@@ -155,24 +164,39 @@ class RenderUniformGrid extends RenderBox
       child = childAfter(child);
     }
 
-    // Pass two: give every child the same box and place it.
-    int index = 0;
-    child = firstChild;
-    while (child != null) {
-      child.layout(
-        BoxConstraints.tightFor(width: cellWidth, height: cellHeight),
+    // Pass two: every child gets the column width and at least the tallest
+    // child's height, then each row takes the height its children report.
+    final List<RenderBox> children = getChildrenAsList();
+    final int rows = (children.length / used).ceil();
+    final List<double> rowHeights = List<double>.filled(rows, 0);
+
+    for (int i = 0; i < children.length; i++) {
+      children[i].layout(
+        BoxConstraints(
+          minWidth: cellWidth,
+          maxWidth: cellWidth,
+          minHeight: cellHeight,
+        ),
+        parentUsesSize: true,
       );
-      (child.parentData! as _UniformGridParentData).offset = Offset(
-        (index % used) * (cellWidth + _spacing),
-        (index ~/ used) * (cellHeight + _runSpacing),
-      );
-      index++;
-      child = childAfter(child);
+      final int row = i ~/ used;
+      rowHeights[row] = math.max(rowHeights[row], children[i].size.height);
     }
 
-    size = constraints.constrain(
-      Size(maxWidth, _totalHeight(cellHeight, used)),
-    );
+    double y = 0;
+    for (int row = 0; row < rows; row++) {
+      for (int column = 0; column < used; column++) {
+        final int i = row * used + column;
+        if (i >= children.length) break;
+        (children[i].parentData! as _UniformGridParentData).offset = Offset(
+          column * (cellWidth + _spacing),
+          y,
+        );
+      }
+      y += rowHeights[row] + (row == rows - 1 ? 0 : _runSpacing);
+    }
+
+    size = constraints.constrain(Size(maxWidth, y));
   }
 
   @override

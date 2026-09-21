@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
 
-import 'package:rainbow_app/core/constants/asset_constants.dart';
 import 'package:rainbow_app/core/extensions/build_context_x.dart';
 import 'package:rainbow_app/core/helpers/formatters.dart';
+import 'package:rainbow_app/core/theme/app_colors.dart';
 import 'package:rainbow_app/core/theme/app_dimensions.dart';
+import 'package:rainbow_app/core/theme/app_scale.dart';
 import 'package:rainbow_app/core/theme/app_typography.dart';
 import 'package:rainbow_app/core/widgets/app_card.dart';
 import 'package:rainbow_app/core/widgets/app_icon.dart';
 
 /// A dashboard tile that opens one workflow.
 ///
-/// The layout is two rows — icon and count, then label and chevron — so the
-/// tile can be read in one glance: what it is, how much is waiting, where it
-/// goes. The label is a single line: a wrapped label makes a row of tiles
-/// look ragged, and the short labels in `AppLocalizations` are written to
-/// fit. Ellipsis is the safety net for a translation or a text scale that
-/// still overflows, and the full label always reaches screen readers through
-/// the card's semantics.
+/// The card is two rows — icon, then label and count. The count is a round
+/// badge inline at the end of the label row: it sits inside the card's
+/// bounds, so the grid keeps an even gap in both directions and no tile
+/// overhangs its neighbour.
+///
+/// There is no chevron. On a grid tile it duplicates what the ripple and the
+/// layout already say, and on the narrowest phone the ~15pt it costs is the
+/// difference between a label that fits and one that is ellipsised.
+///
+/// The label is a single line: a wrapped label makes a row of tiles look
+/// ragged, and the short labels in `AppLocalizations` are written to fit.
+/// Ellipsis is the safety net for a translation or a text scale that still
+/// overflows, and the full label always reaches screen readers through the
+/// card's semantics.
 class QuickActionCard extends StatelessWidget {
   const QuickActionCard({
     required this.icon,
@@ -42,9 +50,13 @@ class QuickActionCard extends StatelessWidget {
   /// used for tiles that create something rather than open a queue.
   final int? count;
 
+  /// Diameter of the count badge.
+  static double get badgeSize => AppScale.of(24);
+
   @override
   Widget build(BuildContext context) {
     final Color tint = accent ?? context.colorScheme.primary;
+    final int? waiting = count;
 
     return AppCard(
       onTap: onTap,
@@ -56,13 +68,7 @@ class QuickActionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              _IconChip(icon: icon, tint: tint),
-              const Spacer(),
-              if (count != null) _Count(value: count!, tint: tint),
-            ],
-          ),
+          _IconChip(icon: icon, tint: tint),
           SizedBox(height: AppSpacing.md),
           Row(
             children: <Widget>[
@@ -77,12 +83,12 @@ class QuickActionCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: AppSpacing.xs),
-              AppIcon(
-                AppAssets.iconChevronRight,
-                size: AppIconSize.xs,
-                color: context.colors.textTertiary,
-              ),
+              // An empty queue carries no badge at all: a circle reading "0"
+              // draws the eye to the one tile that needs no attention.
+              if (waiting != null && waiting > 0) ...<Widget>[
+                SizedBox(width: AppSpacing.xs),
+                _CountBadge(value: waiting, tint: tint),
+              ],
             ],
           ),
         ],
@@ -110,42 +116,57 @@ class _IconChip extends StatelessWidget {
   }
 }
 
-/// How many items are waiting, as a tinted pill.
-class _Count extends StatelessWidget {
-  const _Count({required this.value, required this.tint});
+/// How many items are waiting, as a round badge on the card's corner.
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.value, required this.tint});
 
   final int value;
   final Color tint;
 
   @override
   Widget build(BuildContext context) {
-    // A zero queue is stated plainly rather than highlighted: nothing waiting
-    // is not something to draw the eye to.
-    final bool isEmpty = value == 0;
-    final Color foreground = isEmpty ? context.colors.textTertiary : tint;
+    final double diameter = QuickActionCard.badgeSize;
+    final String display = Formatters.countBadge(value);
+
+    // One and two digits are pinned to a square so the badge is a true
+    // circle. Only the capped "99+" is allowed to widen into a stadium,
+    // which is better than shrinking the number until it cannot be read.
+    final bool isRound = display.length <= 2;
+
+    final Widget number = Text(
+      display,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      style: AppTextStyles.labelSmall.copyWith(
+        color: context.colors.onAccentFill,
+        fontWeight: AppFontWeight.bold,
+        height: 1,
+      ),
+    );
 
     return Container(
-      constraints: BoxConstraints(minWidth: AppSize.chipHeight),
-      padding: EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
+      alignment: Alignment.center,
+      constraints: BoxConstraints(minWidth: diameter, minHeight: diameter),
+      padding: isRound
+          ? EdgeInsets.zero
+          : EdgeInsets.symmetric(horizontal: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: isEmpty
-            ? context.colors.surfaceSunken
-            : tint.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
+        // Darkened where the accent is too light to carry white text, so
+        // every badge looks the same regardless of its tile's colour.
+        color: context.colors.accentFill(tint),
+        borderRadius: BorderRadius.circular(diameter),
       ),
-      child: Text(
-        Formatters.integer(value),
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: AppTextStyles.mono.copyWith(
-          color: foreground,
-          fontWeight: AppFontWeight.bold,
-        ),
-      ),
+      child: isRound
+          ? SizedBox(
+              width: diameter,
+              height: diameter,
+              // Scales a wide glyph set down rather than letting it push the
+              // circle out of shape.
+              child: Center(
+                child: FittedBox(fit: BoxFit.scaleDown, child: number),
+              ),
+            )
+          : number,
     );
   }
 }

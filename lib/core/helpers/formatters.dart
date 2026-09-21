@@ -54,6 +54,15 @@ abstract final class Formatters {
   static String integer(num value) =>
       NumberFormat.decimalPattern(_numberLocale).format(value);
 
+  /// Largest number a count badge shows before it switches to "99+".
+  static const int countBadgeCap = 99;
+
+  /// A count for a badge, capped so a round badge cannot stretch into a
+  /// long pill. The exact number is always available on the screen the badge
+  /// links to.
+  static String countBadge(int value) =>
+      value > countBadgeCap ? '${integer(countBadgeCap)}+' : integer(value);
+
   /// Quantity with up to two decimals and no trailing zeros, so `1.0` boxes
   /// reads as `1` and `0.2` stays `0.2`.
   static String quantity(num value) {

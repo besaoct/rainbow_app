@@ -329,13 +329,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickActionGateIn => 'Gate-in';
 
   @override
-  String get quickActionReadyOrders => 'Ready orders';
+  String get quickActionReadyOrders => 'Orders';
 
   @override
   String get quickActionVehicles => 'Vehicles';
 
   @override
-  String get quickActionInsideGate => 'Inside gate';
+  String get quickActionInsideGate => 'Loading';
 
   @override
   String get homeTodayAtAGlance => 'Today at a glance';
@@ -470,6 +470,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transporterHint => 'Transport company name';
+
+  @override
+  String get transporterSuggestionsLabel => 'Or pick one';
 
   @override
   String get remarksLabel => 'Remarks';
@@ -773,7 +776,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storePendingLinesLabel => 'Pending lines';
 
   @override
-  String get storeLoadFullPending => 'Load all pending';
+  String get storeLoadFullPending => 'Load all';
 
   @override
   String storeItemsSummary(int loaded, int total) {

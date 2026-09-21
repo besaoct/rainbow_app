@@ -406,10 +406,8 @@ void main() {
         harness.wrap(const VehicleLoadingScreen(vehicleId: 1)),
       );
 
-      final Finder fillButton = find.widgetWithText(
-        AppButton,
-        'Load all pending',
-      );
+      // The fill shortcut now sits on the field's label row.
+      final Finder fillButton = find.widgetWithText(TextButton, 'Load all');
       await tester.ensureVisible(fillButton);
       await tester.pump();
       await tester.tap(fillButton);

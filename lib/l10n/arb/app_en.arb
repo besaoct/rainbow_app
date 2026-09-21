@@ -144,19 +144,19 @@
   "homeQuickActions": "Quick actions",
   "quickActionGateIn": "Gate-in",
   "@quickActionGateIn": {
-    "description": "Dashboard tile label. Kept to one short line."
+    "description": "Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits."
   },
-  "quickActionReadyOrders": "Ready orders",
+  "quickActionReadyOrders": "Orders",
   "@quickActionReadyOrders": {
-    "description": "Dashboard tile label. Kept to one short line."
+    "description": "Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits."
   },
   "quickActionVehicles": "Vehicles",
   "@quickActionVehicles": {
-    "description": "Dashboard tile label. Kept to one short line."
+    "description": "Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits."
   },
-  "quickActionInsideGate": "Inside gate",
+  "quickActionInsideGate": "Loading",
   "@quickActionInsideGate": {
-    "description": "Dashboard tile label. Kept to one short line."
+    "description": "Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits."
   },
   "homeTodayAtAGlance": "Today at a glance",
   "homeAssignedLocations": "Assigned locations",
@@ -204,6 +204,10 @@
   },
   "transporterLabel": "Transporter",
   "transporterHint": "Transport company name",
+  "transporterSuggestionsLabel": "Or pick one",
+  "@transporterSuggestionsLabel": {
+    "description": "Caption above the transporter quick-pick chips on the gate-in form."
+  },
   "remarksLabel": "Remarks",
   "remarksHint": "Anything the next person should know",
   "locationLabel": "Location",
@@ -365,7 +369,7 @@
     }
   },
   "storePendingLinesLabel": "Pending lines",
-  "storeLoadFullPending": "Load all pending",
+  "storeLoadFullPending": "Load all",
   "storeItemsSummary": "{loaded} of {total} lines have a quantity",
   "@storeItemsSummary": {
     "placeholders": {

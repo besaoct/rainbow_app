@@ -42,6 +42,20 @@ abstract final class Fixtures {
     'assigned_locations': <Map<String, Object?>>[],
   };
 
+  /// Note the counts here deliberately exceed the list fixtures: the live
+  /// `orders-ready` endpoint caps its page, which is exactly why the tiles
+  /// read their counts from the summary rather than from a list length.
+  static const Map<String, Object?> dashboardSummary = <String, Object?>{
+    'success': true,
+    'data': <String, Object?>{
+      'ready_orders_count': 32,
+      'vehicles_inside_gate_count': 2,
+      'loaded_vehicles_count': 2,
+      'cleared_today_count': 3,
+      'held_count': 1,
+    },
+  };
+
   static const Map<String, Object?> ordersReady = <String, Object?>{
     'success': true,
     'data': <Map<String, Object?>>[

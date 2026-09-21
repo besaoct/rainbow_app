@@ -6,7 +6,6 @@ import 'package:rainbow_app/core/helpers/formatters.dart';
 import 'package:rainbow_app/core/helpers/validators.dart';
 import 'package:rainbow_app/core/theme/app_dimensions.dart';
 import 'package:rainbow_app/core/theme/app_typography.dart';
-import 'package:rainbow_app/core/widgets/app_button.dart';
 import 'package:rainbow_app/core/widgets/app_card.dart';
 import 'package:rainbow_app/core/widgets/app_text_field.dart';
 import 'package:rainbow_app/features/store/models/order_item.dart';
@@ -97,56 +96,71 @@ class LoadLineTile extends StatelessWidget {
             ],
           ),
           SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: AppTextField(
-                  label: context.l10n.quantityToLoadLabel,
-                  hint: '0',
-                  controller: controller,
-                  enabled: enabled && !outOfStock,
-                  errorText: errorText,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.next,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(7),
-                  ],
-                  onChanged: onChanged,
-                  helper: entered > 0
-                      ? context.l10n.boxesShort(
-                          double.parse(
-                            item.boxesFor(entered).toStringAsFixed(2),
-                          ),
-                        )
-                      : null,
-                  validator: (String? v) => Validators.loadQuantity(
-                    v,
-                    pendingPcs: item.qtyPendingPcs,
-                    stockPcs: item.currentStockPcs,
-                    l10n: context.l10n,
-                  ),
-                ),
-              ),
-              SizedBox(width: AppSpacing.md),
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  // Aligns the button with the field, below its label.
-                  padding: EdgeInsets.only(top: AppSpacing.lg + AppSpacing.xs),
-                  child: AppButton.secondary(
-                    label: context.l10n.storeLoadFullPending,
-                    size: AppButtonSize.compact,
-                    onPressed: enabled && !outOfStock ? _fillMax : null,
-                  ),
-                ),
-              ),
+          AppTextField(
+            label: context.l10n.quantityToLoadLabel,
+            hint: '0',
+            controller: controller,
+            enabled: enabled && !outOfStock,
+            errorText: errorText,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.next,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(7),
             ],
+            onChanged: onChanged,
+            // On the label row rather than beside the field: a button
+            // sharing the row could not fit its own label at any sensible
+            // width, and sat at a different height from the input.
+            labelAction: enabled && !outOfStock
+                ? _FillMaxAction(
+                    label: context.l10n.storeLoadFullPending,
+                    onTap: _fillMax,
+                  )
+                : null,
+            helper: entered > 0
+                ? context.l10n.boxesShort(
+                    double.parse(item.boxesFor(entered).toStringAsFixed(2)),
+                  )
+                : null,
+            validator: (String? v) => Validators.loadQuantity(
+              v,
+              pendingPcs: item.qtyPendingPcs,
+              stockPcs: item.currentStockPcs,
+              l10n: context.l10n,
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The "fill this line with everything still pending" shortcut.
+///
+/// Compact by design: it duplicates something the user can always type, so
+/// it sits on the label row without pushing the form down. The field itself
+/// stays the primary, full-size target.
+class _FillMaxAction extends StatelessWidget {
+  const _FillMaxAction({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
+        textStyle: AppTextStyles.labelMedium,
+      ),
+      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
     );
   }
 }

@@ -6,10 +6,7 @@ import 'package:rainbow_app/core/network/api_response.dart';
 /// Returned by `GET /guard/hold-reasons`.
 @immutable
 class HoldReason {
-  const HoldReason({
-    required this.code,
-    required this.label,
-  });
+  const HoldReason({required this.code, required this.label});
 
   factory HoldReason.fromJson(Map<String, Object?> json) {
     return HoldReason(

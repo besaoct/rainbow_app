@@ -29,15 +29,14 @@ class EnteredVehicle {
   factory EnteredVehicle.fromJson(Map<String, Object?> json) {
     return EnteredVehicle(
       id: json.optInt('id') ?? json.requireInt('vehicle_id'),
-      gatePassNo: json.optString('gate_pass_no') ??
+      gatePassNo:
+          json.optString('gate_pass_no') ??
           json.optString('gate_pass_number') ??
           '',
-      vehicleNo: json.optString('vehicle_no') ??
-          json.optString('vehicle_plate') ??
-          '',
-      orderNo: json.optString('order_no') ??
-          json.optString('order_number') ??
-          '',
+      vehicleNo:
+          json.optString('vehicle_no') ?? json.optString('vehicle_plate') ?? '',
+      orderNo:
+          json.optString('order_no') ?? json.optString('order_number') ?? '',
       customerName: json.optString('customer_name') ?? '',
       status: GateEntryStatus.fromWire(
         json.optString('status') ?? json.optString('color_mark'),
@@ -45,14 +44,15 @@ class EnteredVehicle {
       pendingLinesCount: json.optInt('pending_lines_count') ?? 0,
       driverName: json.optString('driver_name') ?? '',
       driverPhone: json.optString('driver_phone') ?? '',
-      transporterName: json.optString('transporter_name') ??
+      transporterName:
+          json.optString('transporter_name') ??
           json.optString('transporter') ??
           '',
       salesOrderId: json.optInt('sales_order_id'),
       locationId: json.optInt('location_id'),
       locationName: json.optString('location_name') ?? '',
-      enteredAt: json.optDateTime('entry_timestamp') ??
-          json.optDateTime('entered_at'),
+      enteredAt:
+          json.optDateTime('entry_timestamp') ?? json.optDateTime('entered_at'),
       enteredByName: json.optString('entered_by_name') ?? '',
     );
   }

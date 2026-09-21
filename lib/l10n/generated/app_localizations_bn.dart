@@ -327,13 +327,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get quickActionGateIn => 'গেট-ইন';
 
   @override
-  String get quickActionReadyOrders => 'প্রস্তুত আদেশ';
+  String get quickActionReadyOrders => 'আদেশ';
 
   @override
   String get quickActionVehicles => 'গাড়ি';
 
   @override
-  String get quickActionInsideGate => 'গেটের ভিতরে';
+  String get quickActionInsideGate => 'লোডিং';
 
   @override
   String get homeTodayAtAGlance => 'আজ এক নজরে';
@@ -468,6 +468,9 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get transporterHint => 'পরিবহণ সংস্থার নাম';
+
+  @override
+  String get transporterSuggestionsLabel => 'অথবা একটি বাছুন';
 
   @override
   String get remarksLabel => 'মন্তব্য';
@@ -771,7 +774,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get storePendingLinesLabel => 'বকেয়া লাইন';
 
   @override
-  String get storeLoadFullPending => 'সব বকেয়া লোড করুন';
+  String get storeLoadFullPending => 'সব লোড';
 
   @override
   String storeItemsSummary(int loaded, int total) {

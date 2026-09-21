@@ -672,28 +672,28 @@ abstract class AppLocalizations {
   /// **'Quick actions'**
   String get homeQuickActions;
 
-  /// Dashboard tile label. Kept to one short line.
+  /// Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits.
   ///
   /// In en, this message translates to:
   /// **'Gate-in'**
   String get quickActionGateIn;
 
-  /// Dashboard tile label. Kept to one short line.
+  /// Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits.
   ///
   /// In en, this message translates to:
-  /// **'Ready orders'**
+  /// **'Orders'**
   String get quickActionReadyOrders;
 
-  /// Dashboard tile label. Kept to one short line.
+  /// Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits.
   ///
   /// In en, this message translates to:
   /// **'Vehicles'**
   String get quickActionVehicles;
 
-  /// Dashboard tile label. Kept to one short line.
+  /// Dashboard tile label. A two-column tile gives the label about 100pt on the narrowest supported phone, so keep this to one short word; quick_action_card_test.dart fails if it no longer fits.
   ///
   /// In en, this message translates to:
-  /// **'Inside gate'**
+  /// **'Loading'**
   String get quickActionInsideGate;
 
   /// No description provided for @homeTodayAtAGlance.
@@ -953,6 +953,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transport company name'**
   String get transporterHint;
+
+  /// Caption above the transporter quick-pick chips on the gate-in form.
+  ///
+  /// In en, this message translates to:
+  /// **'Or pick one'**
+  String get transporterSuggestionsLabel;
 
   /// No description provided for @remarksLabel.
   ///
@@ -1455,7 +1461,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeLoadFullPending.
   ///
   /// In en, this message translates to:
-  /// **'Load all pending'**
+  /// **'Load all'**
   String get storeLoadFullPending;
 
   /// No description provided for @storeItemsSummary.

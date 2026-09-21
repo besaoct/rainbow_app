@@ -285,3 +285,45 @@ class AppColors extends ThemeExtension<AppColors> {
     );
   }
 }
+
+/// Helpers that derive a colour from another colour.
+extension AppColorsX on AppColors {
+  /// Minimum contrast for normal-size text (WCAG 2.1 AA).
+  static const double _minContrast = 4.5;
+
+  /// Text and icons painted on a filled accent surface.
+  ///
+  /// Always light. A filled badge with dark text reads as a chip rather than
+  /// a badge, and picking per-colour meant the orange and cyan accents got
+  /// dark text while the red got light — the same component looking like two
+  /// different things on one screen.
+  Color get onAccentFill => AppPalette.white;
+
+  /// [accent] adjusted until [onAccentFill] sits on it at [_minContrast].
+  ///
+  /// The brand accents are chosen to read as *foreground* colours on a page,
+  /// so several are too light to carry white text: cyan-600 reaches only
+  /// 3.9:1. Darkening the fill keeps the badge on-brand and legible instead
+  /// of forcing a choice between the two.
+  Color accentFill(Color accent) {
+    HSLColor hsl = HSLColor.fromColor(accent);
+    // Bounded, and each step is small enough that the result stays visibly
+    // the same hue.
+    for (int i = 0; i < 40; i++) {
+      if (contrastRatio(onAccentFill, hsl.toColor()) >= _minContrast) break;
+      final double next = hsl.lightness - 0.02;
+      if (next <= 0) return hsl.withLightness(0).toColor();
+      hsl = hsl.withLightness(next);
+    }
+    return hsl.toColor();
+  }
+
+  /// WCAG 2.1 contrast ratio between two opaque colours.
+  double contrastRatio(Color a, Color b) {
+    final double first = a.computeLuminance();
+    final double second = b.computeLuminance();
+    final double lighter = first > second ? first : second;
+    final double darker = first > second ? second : first;
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+}

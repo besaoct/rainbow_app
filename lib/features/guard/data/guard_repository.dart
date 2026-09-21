@@ -82,9 +82,8 @@ class GuardRepository {
     final ApiResponse<List<HoldReason>> response = await _client
         .get<List<HoldReason>>(
           ApiEndpoints.guardHoldReasons,
-          decode: (Object? data) => asJsonList(
-            data,
-          ).map(HoldReason.fromJson).toList(growable: false),
+          decode: (Object? data) =>
+              asJsonList(data).map(HoldReason.fromJson).toList(growable: false),
         );
     return response.data;
   }
@@ -171,8 +170,9 @@ class GuardRepository {
     String? ewayBillNo,
     String? invoiceNo,
   }) async {
-    final String decision =
-        action == GateOutAction.approve ? 'cleared' : 'rejected';
+    final String decision = action == GateOutAction.approve
+        ? 'cleared'
+        : 'rejected';
     final Map<String, Object?> payload = <String, Object?>{
       ApiEndpoints.qAction: action.wireValue,
       ApiEndpoints.qDecision: decision,

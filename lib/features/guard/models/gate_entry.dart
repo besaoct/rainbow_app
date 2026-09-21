@@ -103,15 +103,13 @@ class PagedResult<T> {
     final Map<String, Object?>? pagination = json.optMap('pagination');
     return PagedResult<T>(
       items: json.optMapList('data').map(itemFromJson).toList(growable: false),
-      currentPage: pagination?.optInt('current_page') ??
+      currentPage:
+          pagination?.optInt('current_page') ??
           json.optInt('current_page') ??
           1,
-      lastPage: pagination?.optInt('last_page') ??
-          json.optInt('last_page') ??
-          1,
-      total: pagination?.optInt('total') ??
-          json.optInt('total') ??
-          0,
+      lastPage:
+          pagination?.optInt('last_page') ?? json.optInt('last_page') ?? 1,
+      total: pagination?.optInt('total') ?? json.optInt('total') ?? 0,
     );
   }
 
