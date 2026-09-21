@@ -12,13 +12,13 @@ abstract final class AppConstants {
   /// Marketing version. Overridden in CI builds via `--dart-define=APP_VERSION=...`
   static const String version = String.fromEnvironment(
     'APP_VERSION',
-    defaultValue: '1.0.0',
+    defaultValue: '1.0.1',
   );
 
   /// Build number. Overridden in CI builds via `--dart-define=APP_BUILD_NUMBER=...`
   static const String buildNumber = String.fromEnvironment(
     'APP_BUILD_NUMBER',
-    defaultValue: '1',
+    defaultValue: '2',
   );
 
   /// Locales the app ships translations for.
