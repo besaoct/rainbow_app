@@ -1,5 +1,8 @@
 # Rainbow
 
+[![Build & Release Android](https://github.com/besaoct/rainbow_app/actions/workflows/build.yml/badge.svg)](https://github.com/besaoct/rainbow_app/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/besaoct/rainbow_app)](https://github.com/besaoct/rainbow_app/releases/latest)
+
 Gate and dispatch operations for **Rainbow ERP**. Security guards register a
 vehicle's gate-in against a confirmed sales order, the store team records what
 was loaded, and the guard clears the vehicle for exit — or holds it with a
